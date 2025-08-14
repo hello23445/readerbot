@@ -1,0 +1,2265 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Verification Application</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        #adContainer {
+            display: none;
+        }
+        /* Адаптивный стиль для экрана рекламы */
+        #adScreen {
+        display: flex;
+        flex-direction: column;
+        /* Вертикальное размещение */
+        align-items: center;
+        justify-content: space-between;
+        /* height: 100vh; */
+        /* Полная высота экрана */
+        padding: 10px;
+        box-sizing: border-box;
+        overflow-x: hidden;
+        overflow-y: auto;
+        }
+
+        .ad-video {
+        max-width: 100%;
+        max-height: 50vh;
+        /* Ограничение высоты видео до 50% экрана */
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        /* Сохранение пропорций */
+        }
+
+        #no-ad-text {
+        max-width: 100%;
+        word-wrap: break-word;
+        /* Перенос слов */
+        font-size: 1em;
+        /* Адаптивный размер шрифта */
+        text-align: center;
+        }
+
+        #no-ad-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1em;
+        /* Отступ между элементами */
+        width: 100%;
+        }
+
+        #noAdsMessage {
+        color: red;
+        text-align: center;
+        }
+
+        #continue-buttonAdButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* Скрытие заголовка "Просмотр рекламы", если он есть */
+        #ad-title {
+        display: none;
+        /* Скрываем заголовок */
+        }
+        body { font-family: Arial, sans-serif; background-color: #f3f4f6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .error { color: red; font-weight: bold; }
+        .success { color: green; font-weight: bold; }
+        .hidden { display: none; }
+        .btn { transition: background-color 0.3s; }
+        .btn:hover { opacity: 0.9; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        select { color: #333; }
+        video { max-width: 100%; height: auto; }
+        .loader { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
+        .loader-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @media (max-width: 640px) {
+            .container { padding: 10px; }
+            input, button, select { font-size: 16px; }
+        }
+        body.dark { background-color: #333; color: #f3f4f6; }
+        body.dark .container { background-color: #444; }
+        body.dark .btn { background-color: #555; }
+        body.dark .error { color: #ff6666; }
+        body.dark .success { color: #66ff66; }
+        body.dark select { color: #f3f4f6; background-color: #555; }
+        body.dark input { background-color: #555; color: #f3f4f6; border-color: #666; }
+        a:hover { color: beige; }
+    </style>
+</head>
+<body>
+    <div class="container bg-white rounded-lg shadow-lg p-6">
+        <!-- Экран блокировки -->
+        <div id="blockedScreen" class="screen hidden">
+            <h1 class="text-2xl font-bold mb-4 text-center">Вы заблокированы<br>You have been banned</h1>
+            <a href="https://t.me/Clickerstart_bot" target="_blank" class="block bg-blue-500 text-white p-2 mb-2 rounded text-center btn">Служба поддержки | Support</a>
+        </div>
+
+        <!-- Экран 1: Ввод Telegram ID -->
+        <div id="screen1" class="screen">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold" data-translate="enterTelegramId">Enter Telegram ID</h2>
+                <button onclick="showSettings('screen1')" class="bg-gray-500 text-white p-2 rounded btn"><i class="fa-solid fa-gear"></i></button>
+            </div>
+            <p class="text-center mb-4" id="a3" data-translate="findTelegramId" style="color: rgb(255, 0, 0); font-weight: 900;">You can find out your telegram id here: <a href="https://t.me/my_id_bot" id="a2">@my_id_bot</a></p>
+            <input id="telegramId" type="number" placeholder="Your Telegram ID" class="w-full p-2 mb-4 border rounded" onkeypress="return /^[0-9-s-l\- ]$/.test(event.key)" data-translate-placeholder="telegramIdPlaceholder">
+            <button id="submitButton" onclick="submitTelegramId()" class="w-full bg-blue-500 text-white p-2 rounded btn" data-translate="submit">Submit</button>
+            <div id="codeInput" class="hidden mt-4">
+                <p class="mb-2" data-translate="enterCode">Enter the 6-digit code sent to you here: </p><p><a href="https://t.me/MessagesReaderBot" style="color:blue;">@MessagesReaderBot</a></p>
+                <input id="verificationCode" type="text" placeholder="6-digit code" maxlength="6" class="w-full p-2 mb-4 border rounded">
+                <button onclick="verifyCode()" class="w-full bg-blue-500 text-white p-2 rounded btn" data-translate="verify">Verify</button>
+            </div>
+            <p id="error1" class="error hidden mt-2"></p>
+        </div>
+
+        <!-- Экран 2: Подписка на каналы -->
+        <div id="screen2" class="screen hidden">
+            <h2 class="text-2xl font-bold mb-4 text-center" data-translate="subscribeToChannels">Subscribe to Channels</h2>
+            <p id="subscriptionMessage" class="mb-4 text-center" data-translate="pleaseSubscribe">Please subscribe to the following channels:</p>
+            <a href="https://t.me/NickNaymes2Bot" target="_blank" class="block bg-blue-500 text-white p-2 mb-2 rounded text-center btn" data-translate="subscribeToNickNaymes2Bot">Subscribe to @NickNaymes2Bot</a>
+            <a href="https://t.me/messagesibotnews" target="_blank" class="block bg-blue-500 text-white p-2 mb-4 rounded text-center btn" data-translate="subscribeToMessagesibotnews">Subscribe to @messagesibotnews</a>
+            <button onclick="checkSubscriptions()" class="w-full bg-green-500 text-white p-2 rounded btn" data-translate="checkSubscription">Check Subscription</button>
+            <button onclick="showScreen('screen1')" class="w-full bg-gray-500 text-white p-2 rounded btn mt-2" data-translate="backToIdInput">Back to ID Input Screen</button>
+            <p id="error2" class="error hidden mt-2"></p>
+        </div>
+
+        <!-- Экран 3: Главное меню -->
+        <div id="screen3" class="screen hidden" >
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold" data-translate="mainMenu">Main Menu</h2>
+                <button onclick="showSettings('screen3')" class="bg-gray-500 text-white p-2 rounded btn"><i class="fa-solid fa-gear"></i></button>
+            </div>
+            <p class="mb-4 text-center">
+                <span data-translate="currentLimits">Current Limits: </span>
+                <span id="limitCount">0</span>
+                <span id="myId"></span>
+            </p>
+            <button onclick="startProcess()" class="w-full bg-blue-500 text-white p-2 mb-2 rounded btn" data-translate="start">Start</button>
+            <button onclick="showTopUpOptions()" class="w-full bg-purple-500 text-white p-2 rounded btn" data-translate="topUpLimits">Top Up Limits</button>
+        </div>
+
+        <!-- Экран выбора способа пополнения -->
+        <div id="topUpOptionsScreen" class="screen hidden">
+            <h2 class="text-2xl font-bold mb-4 text-center" data-translate="selectTopUpMethod">Select Top-Up Method</h2>
+            <button onclick="showPromoScreen()" class="w-full bg-blue-500 text-white p-2 mb-2 rounded btn" data-translate="promoCode">Promo Code</button>
+            <button onclick="showAdScreen()" class="w-full bg-blue-500 text-white p-2 mb-2 rounded btn" data-translate="watchAd">Watch Advertisement</button>
+            <button onclick="showScreen('screen3')" class="w-full bg-gray-500 text-white p-2 rounded btn" data-translate="back">Back</button>
+        </div>
+
+        <!-- Экран просмотра рекламы -->
+        <div id="adScreen" class="screen hidden">
+            <div id="adContent" class="hidden">
+                <h2 class="text-2xl font-bold mb-4 text-center" data-translate="watchAd">Watch Advertisement</h2>
+                <div id="adVideo" class="mb-4"></div>
+                <p id="adText" class="mb-4"></p>
+                <p class="mb-4 text-center">
+                    <a href="https://t.me/buyAdss_bot" target="_blank" class="text-blue-500">@buyAdss_bot</a>
+                    <span data-translate="buyAd"> - Buy Advertisement</span>
+                </p>
+                <p id="noAdsMessage" class="error hidden mt-2" data-translate="noAdsAvailable">No advertisements available</p>
+                <button id="continueAdButton" class="w-full bg-blue-500 text-white p-2 rounded btn" disabled data-translate="continueAd">Continue (30)</button>
+                <button onclick="showScreen('screen3')" class="w-full bg-gray-500 text-white p-2 rounded btn mt-2" data-translate="backToMainMenu">Back to Main Menu</button>
+            </div>
+        </div>
+
+        <!-- Экран ввода username -->
+        <div id="usernameScreen" class="screen hidden">
+            <h2 class="text-2xl font-bold mb-4 text-center" data-translate="enterUsername">Enter Username</h2>
+            <input id="usernameInput" type="text" placeholder="@username" class="w-full p-2 mb-4 border rounded" onkeypress="return /[a-zA-Z0-9-@]/.test(event.key)">
+            <button onclick="submitUsername()" class="w-full bg-blue-500 text-white p-2 mb-2 rounded btn" data-translate="next">Next</button>
+            <button onclick="backToMain()" class="w-full bg-gray-500 text-white p-2 rounded btn" data-translate="back">Back</button>
+            <p id="errorUsername" class="error hidden mt-2"></p>
+        </div>
+
+        <!-- Экран выбора пола -->
+        <div id="genderScreen" class="screen hidden">
+            <h2 class="text-2xl font-bold mb-4 text-center" data-translate="selectGender">Select Gender of <span id="usernameDisplay"></span></h2>
+            <button onclick="selectGender('male')" class="w-full bg-blue-500 text-white p-2 mb-2 rounded btn" data-translate="male">Male</button>
+            <button onclick="selectGender('female')" class="w-full bg-pink-500 text-white p-2 mb-2 rounded btn" data-translate="female">Female</button>
+            <button onclick="backToUsername()" class="w-full bg-gray-500 text-white p-2 rounded btn" data-translate="back">Back</button>
+        </div>
+
+        <!-- Экран загрузки -->
+        <div id="loadingScreen" class="screen hidden">
+            <h2 id="loadingText" class="text-2xl font-bold mb-4 text-center">Loading...</h2>
+            <div id="preloadBar" class="w-full bg-gray-200 h-2 mt-4">
+                <div id="preloadProgress" class="bg-blue-500 h-2" style="width: 0%"></div>
+            </div>
+            <p id="preloadText" class="text-center mt-2">0%</p>
+        </div>
+
+        <!-- Экран выбора чата -->
+        <div id="chatScreen" class="screen hidden">
+            <h2 class="text-2xl font-bold mb-4 text-center" data-translate="selectChat">Select Chat</h2>
+            <div id="chatButtons" class="mb-4"></div>
+            <button onclick="backToMain()" class="w-full bg-blue-500 text-white p-2 rounded btn" data-translate="mainMenu">Main Menu</button>
+        </div>
+
+        <!-- Экран фейковой переписки -->
+        <div id="fakeChatScreen" class="screen hidden">
+            <h2 class="text-2xl font-bold mb-4 text-center" data-translate="fakeChat">The correspondence that I managed to find and translate into English:</h2>
+            <div id="fakeChatContent" class="mb-4 p-4 border rounded"></div>
+            <button onclick="backToChats()" class="w-full bg-gray-500 text-white p-2 mb-2 rounded btn" data-translate="back">Back</button>
+            <button onclick="backToMain()" class="w-full bg-blue-500 text-white p-2 rounded btn" data-translate="mainMenu">Main Menu</button>
+        </div>
+
+        <!-- Экран ввода промокода -->
+        <div id="promoScreen" class="screen hidden">
+            <h2 class="text-2xl font-bold mb-4 text-center" data-translate="enterPromoCode">Enter Promo Code</h2>
+            <input id="promoCode" type="text" placeholder="..." class="w-full p-2 mb-4 border rounded">
+            <h4 class="mb-4 text-center">
+                <a href="https://t.me/Clickerstart_bot" target="_blank" class="text-blue-500" data-translate="buyPromoCodes">Promo codes can be purchased at @Clickerstart_bot</a>
+            </h4>
+            <button onclick="submitPromoCode()" class="w-full bg-blue-500 text-white p-2 mb-2 rounded btn" data-translate="submit">Submit</button>
+            <button onclick="showScreen('screen3')" class="w-full bg-gray-500 text-white p-2 rounded btn" data-translate="mainMenu">Main Menu</button>
+            <p class="mt-4 text-center">
+                <span data-translate="promoCodesEntered">Promo Codes Entered: </span>
+                <span id="promoCodeCount">0</span>
+            </p>
+            <p class="mb-4 text-center">
+                <span data-translate="limitsFromPromos">Limits from Promos: </span>
+                <span id="limitsFromPromos">0</span>
+            </p>
+            <p id="promoMessage" class="mt-2"></p>
+        </div>
+
+        <!-- Экран отсутствия лимитов -->
+        <div id="noLimitsScreen" class="screen hidden">
+            <h2 class="text-2xl font-bold mb-4 text-center" data-translate="noLimitsAvailable">No Limits Available</h2>
+            <p class="mb-4 text-center" data-translate="pleaseTopUp">You have no limits left. Please top up.</p>
+            <button onclick="showScreen('screen3')" class="w-full bg-gray-500 text-white p-2 rounded btn" data-translate="backToMainMenu">Back to Main Menu</button>
+        </div>
+
+        <!-- Экран настроек -->
+        <div id="settingsScreen" class="screen hidden">
+            <h2 class="text-2xl font-bold mb-4 text-center" data-translate="settings">Settings</h2>
+            <div id="idShower" style="display: none;">
+                <h3>Your ID:</h3><button id="setID" style="background-color: black; border-radius: 8%; color: white;" title="Tap to copy your ID"></button>
+            </div>
+            <div class="mb-4">
+                <label class="block mb-2" data-translate="theme" style="font-weight: bold;">Theme:</label>
+                <select id="themeSelect" class="w-full p-2 border rounded">
+                    <option value="light" data-translate="light">Light</option>
+                    <option value="dark" data-translate="dark">Dark</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="block mb-2" data-translate="language" style="font-weight: bold;">Language:</label>
+                <select id="languageSelect" class="w-full p-2 border rounded">
+                    <option value="en" data-translate="english">English (Английский)</option>
+                    <option value="ru" data-translate="russian">Русский (Русский)</option>
+                    <option value="uz" data-translate="uzbek">Oʻzbekcha (Узбекский)</option>
+                    <option value="kk" data-translate="kazakh">Қазақша (Казахский)</option>
+                    <option value="uk" data-translate="ukrainian">Українська (Украинский)</option>
+                    <option value="be" data-translate="belarusian">Беларуская (Белорусский)</option>
+                    <option value="az" data-translate="azerbaijani">Azərbaycanca (Азербайджанский)</option>
+                    <option value="tr" data-translate="turkish">Türkçe (Турецкий)</option>
+                </select>
+            </div>
+            <button onclick="showDeleteDataScreen()" class="w-full bg-red-500 text-white p-2 mb-2 rounded btn" data-translate="requestDataDeletion" id="data_deletion" disabled>Request Data Deletion</button>
+            <button onclick="applySettings()" class="w-full bg-blue-500 text-white p-2 mb-2 rounded btn" data-translate="apply">Apply</button>
+            <button onclick="showScreen(previousScreen)" class="w-full bg-gray-500 text-white p-2 rounded btn" data-translate="back">Back</button>
+        </div>
+
+        <!-- Экран запроса на удаление данных -->
+        <div id="deleteDataScreen" class="screen hidden">
+            <h2 class="text-2xl font-bold mb-4 text-center" data-translate="requestDataDeletion">Request Data Deletion</h2>
+            <h4 class="mb-4 text-center" data-translate="enterDeletionCode">Enter the code to delete data</h4>
+            <input id="deletionCode" type="text" placeholder="" data-translate-placeholder="deletionCodePlaceholder" class="w-full p-2 mb-4 border rounded">
+            <h4 class="mb-4 text-center">
+                <a href="https://t.me/Clickerstart_bot" target="_blank" class="text-blue-500" data-translate="getDeletionCode">You can get the deletion code from @Clickerstart_bot</a>
+            </h4>
+            <button onclick="submitDeletionCode()" class="w-full bg-red-500 text-white p-2 mb-2 rounded btn" data-translate="submit">Submit</button>
+            <button onclick="backToSettings()" class="w-full bg-gray-500 text-white p-2 rounded btn" data-translate="back">Back</button>
+            <p id="errorDeletion" class="error hidden mt-2"></p>
+        </div>
+    </div>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        const userId = tg?.initDataUnsafe?.user?.id || null;
+        if (!userId){
+            alert("Не удалось получить ID пользователя из Telegram.");
+        }
+        else {
+            backToMain();
+            userData.telegramId = userId;
+        }
+        const BOT_TOKEN = '8411803103:AAEoXqnCGWR5Owmk2kShxjBr0aOFvIZzFts';
+        const CHANNELS = ['@NickNaymes2Bot', '@messagesibotnews'];
+        const CHAT_OPTIONS = ['mom', 'dad', 'brother', 'sister', 'lovedOne'];
+        const SPREADSHEET_ID = '1JiE9nK2qRrEwI-2n7Yi8koib7Nd3Lbg8OIVuDwURrx0';
+        const GOOGLE_SHEETS_API_KEY = 'AIzaSyCuSfHppT4KF-n3Big8KzVAdrfEkjf6-3c';
+        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyZJoh0c1t9-MNi5DG3_t30d12CwyXqid-6HIS_1kXmBj0ZZVJmE2tlBVLICGAz2IvP/exec'
+        const BLOCKED_IDS = ['123456789', '123456784']; // Массив заблокированных Telegram ID
+
+        const PROMO_CODES = [
+            { code: 'TEST123', limits: 1 },
+            { code: 'HGJKL89', limits: 3 },
+            { code: 'IAMTOP', limits: 4 },
+            { code: 'MYNEWYEAR', limits: 5 },
+            { code: 'READERBOT22ARE23', limits: 8 },
+            { code: 'B7J3V9', limits: 11 },
+            { code: 'XQ4D8', limits: 12 },
+            { code: 'K9V7YPZ6', limits: 13 },
+            { code: 'JZ2R', limits: 14 },
+            { code: 'F6B3V1H8L7M9Z0P', limits: 18 },
+            { code: 'R9J3K2B8C4D1L6X7T', limits: 20 },
+            { code: 'Q0T2X7M6P1A3D5V9L', limits: 22 },
+            { code: 'S3A8Z9F1B7K0V2J6Y', limits: 24 },
+            { code: 'M6W1V8P9G2N3A4L0T', limits: 28 },
+            { code: 'C4D1Q9A6B7V5N2LZ', limits: 30 },
+            { code: 'L3T7X2B0J8Q1H9ZK', limits: 33 },
+            { code: 'P2S9X5F1V3R8K0YJ', limits: 34 },
+            { code: 'M6W1V8P9G2N3A4L0T', limits: 37 },
+            { code: 'T4B3I7Q0S9F1V2R6X', limits: 40 },
+            { code: 'N4M7T9L8G5P1R3W2V', limits: 50 },
+            { code: 'Z3A7B1K', limits: 1 },
+            { code: 'N6D4J2M9', limits: 3 },
+            { code: 'P0L9G8I', limits: 4 },
+            { code: 'V1Y3U5O', limits: 5 },
+            { code: 'W7T2D4F3G9J1', limits: 8 },
+            { code: 'A2Q9V7Z', limits: 11 },
+            { code: 'H4J1X3M', limits: 12 },
+            { code: 'K8V0P2Y6S', limits: 13 },
+            { code: 'B9Z1R4', limits: 14 },
+            { code: 'Y6L2T5F9D0N3P', limits: 18 },
+            { code: 'U1C8J7W5L9B4Z0T', limits: 20 },
+            { code: 'Q9V2X3T5J7P0L1N8', limits: 22 },
+            { code: 'C6W3V7B5F1Y9Z0T', limits: 24 },
+            { code: 'R4M2P8G1N9A3K0L', limits: 28 },
+            { code: 'X5S1V7B9N0P4L2K', limits: 30 },
+            { code: 'W3T0X2F1J9Y8M7K', limits: 33 },
+            { code: 'T7V0R4K2S1P8Y5J', limits: 34 },
+            { code: 'P3S0M2A6T7L1N8V', limits: 37 },
+            { code: 'F9R4T2X3S1V0I7B', limits: 40 },
+            { code: 'Z8N2L3T0V7P5R1W', limits: 50 },
+            { code: 'R8V1Z0', limits: 1 },
+            { code: 'D4K2J7L', limits: 3 },
+            { code: 'U5B9A2T', limits: 4 },
+            { code: 'Q1S3M7P', limits: 5 },
+            { code: 'F6V4W2G8Z1P', limits: 8 },
+            { code: 'N9L7R2X', limits: 11 },
+            { code: 'H3T0Y8J', limits: 12 },
+            { code: 'L4Z9M1V6', limits: 13 },
+            { code: 'P2C5K0R', limits: 14 },
+            { code: 'T7J9F0A3Y8L1N', limits: 18 },
+            { code: 'B5C6V7K9L1P0R', limits: 20 },
+            { code: 'M3X1Y2F9N5T8V0J', limits: 22 },
+            { code: 'S4W8V7B2T1R6L0Z', limits: 24 },
+            { code: 'P1A6G9L7F2X0T4N', limits: 28 },
+            { code: 'C9R2M5N8Y4P3V7B', limits: 30 },
+            { code: 'K6V1X3W9J2Y8L0R', limits: 33 },
+            { code: 'S7T4V0Y2P1K9R6X', limits: 34 },
+            { code: 'L5B9S3M2T0R8V1N', limits: 37 },
+            { code: 'J2X9R4T5S0V7P1F', limits: 40 },
+            { code: 'N4T8L1P3V9G7W0R', limits: 50 }
+        ];
+
+        let userData = JSON.parse(localStorage.getItem('userData')) || {
+            telegramId: null,
+            verified: false,
+            limits: 1,
+            usedUsernames: [],
+            usedPromoCodes: [],
+            promoCodeCount: 0,
+            totalLimitsFromPromos: 0,
+            viewedAds: [],
+            theme: 'light',
+            language: 'ru',
+            selectedChatOptions: null,
+            chatMessages: {},
+            firstLogin: new Date().toISOString(),
+            lastActivity: new Date().toISOString(),
+            totalChatsViewed: 0
+        };
+
+        if (typeof userData.limits !== 'number' || userData.limits < 0) {
+            userData.limits = 0;
+        }
+
+        if (!userData.firstLogin) {
+            userData.firstLogin = new Date().toISOString();
+        }
+
+        userData.lastActivity = new Date().toISOString();
+
+        const translations = {
+            en: {
+                // ... существующие переводы на английский ...
+                language: 'Language',
+                english: 'English (Английский)',
+                russian: 'Русский (Русский)',
+                uzbek: 'Oʻzbekcha (Узбекский)',
+                kazakh: 'Қазақша (Казахский)',
+                ukrainian: 'Українська (Украинский)',
+                belarusian: 'Беларуская (Белорусский)',
+                azerbaijani: 'Azərbaycanca (Азербайджанский)',
+                turkish: 'Türkçe (Турецкий)',
+                enterTelegramId: 'Enter your Telegram ID',
+                submit: 'Submit my ID',
+                resend: 'Resend',
+                enterCode: 'Enter the 6-digit code sent to you here: ',
+                verify: 'Verify',
+                subscribeToChannels: 'Subscribe to Channels',
+                pleaseSubscribe: 'Please subscribe to the following channels:',
+                subscribeToNickNaymes2Bot: 'Subscribe to @NickNaymes2Bot',
+                subscribeToMessagesibotnews: 'Subscribe to @messagesibotnews',
+                checkSubscription: 'Check Subscription',
+                backToIdInput: 'Back to ID Input Screen',
+                mainMenu: 'Main Menu',
+                settings: 'Settings',
+                currentLimits: 'Current Limits: ',
+                start: 'Start',
+                topUpLimits: 'Top Up Limits',
+                selectTopUpMethod: 'Select Top-Up Method',
+                promoCode: 'Promo Code',
+                watchAd: 'Watch Advertisement',
+                buyAd: 'Buy Advertisement',
+                noAdsAvailable: 'No advertisements available',
+                continueAd: 'Continue',
+                enterUsername: 'Enter Username',
+                next: 'Next',
+                back: 'Back',
+                selectGender: 'Select Gender of ',
+                male: 'Male',
+                female: 'Female',
+                loading: 'Loading...',
+                translating: 'Translating into English...',
+                displaying: 'Displaying found chats and messages...',
+                selectChat: 'Select Chat',
+                fakeChat: 'The correspondence that I managed to find and translate into English:',
+                enterPromoCode: 'Enter Promo Code',
+                buyPromoCodes: 'Promo codes can be purchased at @Clickerstart_bot',
+                noLimitsAvailable: 'No Limits Available',
+                pleaseTopUp: 'You have no limits left. Please top up.',
+                backToMainMenu: 'Back to Main Menu',
+                theme: 'Theme',
+                light: 'Light',
+                dark: 'Dark',
+                apply: 'Apply',
+                invalidUsername: 'Invalid username!',
+                usernameAlreadyUsed: 'This username has already been checked',
+                invalidCode: 'Invalid code',
+                invalidPromoCode: 'Invalid promo code!',
+                promoCodeAlreadyUsed: 'This promo code has already been used!',
+                success: 'Success!',
+                mom: 'Mom',
+                dad: 'Dad',
+                brother: 'Brother',
+                sister: 'Sister',
+                lovedOne: 'Loved One',
+                lovedOneMale: 'Beloved',
+                lovedOneFemale: 'Beloved',
+                youCantCheckSamePerson: 'You can\'t check the same person multiple times!',
+                promoCodesEntered: 'Promo Codes Entered: ',
+                limitsFromPromos: 'Limits from Promos: ',
+                requestDataDeletion: 'Request Data Deletion',
+                enterDeletionCode: 'Enter the code to delete data',
+                deletionCodeIncorrect: 'Invalid code!',
+                getDeletionCode: 'You can get the deletion code from @Clickerstart_bot',
+                deletionCodePlaceholder: 'Deletion code',
+                findTelegramId: 'You can find out your telegram id here: <a href="https://t.me/my_id_bot" id="a2"><u>@my_id_bot</u></a>',
+                telegramIdPlaceholder: 'Your Telegram ID',
+                momConversations: [
+                    ["Hi, Mom!", "Hi, dear! How are you today?"],
+                    ["Mom, can I go out?", "Where do you want to go?", "To the park with friends.", "Do you want me to pick you up later?"],
+                    ["Mom, I got an A in math!", "Good job! Shall we celebrate?", "Yes, let’s buy a cake!"],
+                    ["Mom, I have a test tomorrow, can you help me prepare?", "Of course, let’s solve the problems together.", "Thanks! You’re the best."],
+                    ["Mom, I’ll be late at work, don’t wait for dinner.", "Alright, just call when you're free.", "I’ll definitely call."],
+                    ["Mom, did you pick up the package?", "Yes, it's on the kitchen table.", "Thanks, I’ll check it tonight."],
+                    ["Mom, I need your opinion: which jacket should I choose?", "Show me the photos, I’ll help you choose.", "Sent them, which one’s better?"],
+                    ["Mom, I’m tired, had a lot of classes today.", "Rest, I’ll make tea and cookies.", "Thanks, that’s exactly what I need."]
+                ],
+
+                dadConversations: [
+                    ["Dad, how are you?", "I'm fine, son.", "What are you doing?", "Watching TV."],
+                    ["Dad, can you help with the car?", "Of course, what happened?", "The engine won’t start.", "We'll check the battery and the starter."],
+                    ["Dad, recommend a movie for tonight.", "Watch the new thriller, it has great reviews.", "Alright, thanks for the recommendation!"],
+                    ["Dad, I won the chess tournament!", "Congratulations! Well done.", "I couldn't have done it without your lessons."],
+                    ["Dad, can I borrow your tools?", "Sure, but be careful.", "I promise, I’ll return them clean."],
+                    ["Dad, any plans for the weekend?", "I’m thinking of going fishing.", "Can I come too?", "We’ll take the rods and go together!"],
+                    ["Dad, I bought a gift for Mom.", "Great idea, she’ll love it.", "I hope she likes it."],
+                    ["Dad, tell me about your youth.", "When I was your age, we used to play outside..."]
+                ],
+
+                brotherConversations: [
+                    ["Hi, bro!", "Hey! How are you?", "Great, and you?"],
+                    ["Bro, can I borrow your headphones?", "Sure, just take care of them.", "I promise."],
+                    ["Bro, football this evening?", "Sure, what time?", "At seven, behind the school stadium."],
+                    ["Bro, help me move the chair?", "No problem, we’ll lift it together.", "Thanks!"],
+                    ["Bro, have you seen my backpack?", "Yeah, you left it in the hallway.", "Found it, thanks."],
+                    ["Bro, what are your plans for the holidays?", "I want to visit friends at the dacha.", "Sounds great."],
+                    ["Bro, can I use your laptop?", "Okay, but don’t install any extra stuff.", "Got it."],
+                    ["Bro, remember our game?", "Of course, I still hold the record.", "Let’s play again!"]
+                ],
+
+                sisterConversations: [
+                    ["Sis, are you home?", "Yes, just got in.", "What’s new?"],
+                    ["Sis, can I borrow your dress for the prom?", "Sure, try it on.", "Thanks!"],
+                    ["Sis, can you help with my hairstyle?", "Gladly.", "You're the best stylist."],
+                    ["Sis, let’s go shopping together?", "Let’s go, I want a new bag.", "Perfect."],
+                    ["Sis, what are your plans for the evening?", "I’ll be reading a book.", "Maybe we can watch a movie?", "Let’s do it!"],
+                    ["Sis, did you do the English homework?", "Yes, my tutor checked it.", "Can you show me my mistakes?"],
+                    ["Sis, did you hear the news?", "What news?", "There’s a concert announced at school.", "We must take part!"],
+                    ["Sis, happy birthday!", "Thanks, you’re the best brother."]
+                ],
+
+                lovedOneMaleConversations: [
+                    ["Hi, honey!", "Hi, my love! How was your day?"],
+                    ["Darling, I miss you.", "I miss you too. Shall we call tonight?"],
+                    ["Sweetheart, what do you want for dinner?", "Your salad and pasta.", "I’m happy to cook it."],
+                    ["I love you.", "I love you more than anything in the world."],
+                    ["How was your meeting?", "Good, I’ll tell you all about it soon.", "I’m looking forward to it."],
+                    ["Honey, shall we travel together?", "I want to go to the sea.", "Let’s plan the route."],
+                    ["Love, did you see my photos?", "Yes, you look amazing.", "Thanks!"],
+                    ["I’m so happy we’re together.", "And I’m happy every day with you."]
+                ],
+
+                lovedOneFemaleConversations: [
+                    ["Hi, my love!", "Hi, dear! How was your day?"],
+                    ["Sweetheart, I miss you.", "I miss you too. When will we meet?"],
+                    ["My love, what should we watch tonight?", "Let’s watch a comedy.", "Great, I’ll get the popcorn."],
+                    ["I adore you.", "And I adore you with all my heart."],
+                    ["How was your presentation?", "Successful, waiting for your praise.", "You did great!"],
+                    ["Sweetheart, let’s go to the mountains for the weekend?", "I want some fresh air.", "We’ll plan the trip."],
+                    ["My love, did you see the new clothes?", "Yes, I want to try them on.", "Let’s go shopping together."],
+                    ["I’m happy with you.", "And I’m happy to be with you."]
+                ]
+
+            },
+            ru: {
+                // ... существующие переводы на русский ...
+                language: 'Язык',
+                english: 'English (Английский)',
+                russian: 'Русский (Русский)',
+                uzbek: 'Oʻzbekcha (Узбекский)',
+                kazakh: 'Қазақша (Казахский)',
+                ukrainian: 'Українська (Украинский)',
+                belarusian: 'Беларуская (Белорусский)',
+                azerbaijani: 'Azərbaycanca (Азербайджанский)',
+                turkish: 'Türkçe (Турецкий)',
+                enterTelegramId: 'Введите свой ID Telegram',
+                submit: 'Отправить',
+                resend: 'Отправить заново',
+                enterCode: 'Введите 6-значный код, отправленный в ',
+                verify: 'Проверить',
+                subscribeToChannels: 'Подпишитесь на каналы',
+                pleaseSubscribe: 'Пожалуйста, подпишитесь на следующие каналы:',
+                subscribeToNickNaymes2Bot: 'Подписаться на @NickNaymes2Bot',
+                subscribeToMessagesibotnews: 'Подписаться на @messagesibotnews',
+                checkSubscription: 'Проверить подписку',
+                backToIdInput: 'Вернуться к экрану ввода ID',
+                mainMenu: 'Главное меню',
+                settings: 'Настройки',
+                currentLimits: 'Текущие лимиты: ',
+                start: 'Начать',
+                topUpLimits: 'Пополнить лимиты',
+                selectTopUpMethod: 'Выберите способ пополнения',
+                promoCode: 'Промокод',
+                watchAd: 'Посмотреть рекламу',
+                buyAd: 'Купить рекламу',
+                noAdsAvailable: 'Реклама недоступна',
+                continueAd: 'Продолжить',
+                enterUsername: 'Введите имя пользователя',
+                next: 'Далее',
+                back: 'Назад',
+                selectGender: 'Выберите пол ',
+                male: 'Мужской',
+                female: 'Женский',
+                loading: 'Загрузка...',
+                translating: 'Перевожу на русский...',
+                displaying: 'Вывожу найденные чаты и переписки...',
+                selectChat: 'Выберите чат',
+                fakeChat: 'Переписка, которую мне удалось найти и перевести на русский:',
+                enterPromoCode: 'Введите промокод',
+                buyPromoCodes: 'Промокоды можно приобрести у @Clickerstart_bot',
+                noLimitsAvailable: 'Лимиты недоступны',
+                pleaseTopUp: 'У вас не осталось лимитов. Пожалуйста, пополните.',
+                backToMainMenu: 'Вернуться в главное меню',
+                theme: 'Тема',
+                light: 'Светлая',
+                dark: 'Темная',
+                apply: 'Применить',
+                invalidUsername: 'Неверный username!',
+                usernameAlreadyUsed: 'Это имя пользователя уже было проверено',
+                invalidCode: 'Неверный код',
+                invalidPromoCode: 'Неверный промокод!',
+                promoCodeAlreadyUsed: 'Этот промокод уже был использован!',
+                success: 'Успех!',
+                mom: 'Мама',
+                dad: 'Папа',
+                brother: 'Брат',
+                sister: 'Сестра',
+                lovedOne: 'Любимый человек',
+                lovedOneMale: 'Любимая',
+                lovedOneFemale: 'Любимый',
+                youCantCheckSamePerson: 'Нельзя проверять одного и того же человека несколько раз!',
+                promoCodesEntered: 'Введено промокодов: ',
+                limitsFromPromos: 'Получено лимитов от промокодов: ',
+                requestDataDeletion: 'Запрос на удаление данных',
+                enterDeletionCode: 'Введите код для удаления данных',
+                deletionCodeIncorrect: 'Неверный код!',
+                getDeletionCode: 'Код удаления можно взять у @Clickerstart_bot',
+                deletionCodePlaceholder: 'Код удаления',
+                findTelegramId: 'Вы можете узнать свой ID Telegram здесь: <a href="https://t.me/my_id_bot" id="a2"><u>@my_id_bot</u></a>',
+                telegramIdPlaceholder: 'Ваш Telegram ID',
+                momConversations: [
+                    ["Привет, мама!", "Привет, дорогой! Как твои дела сегодня?"],
+                    ["Мам, можно я пойду гулять?", "Куда хочешь?", "В парк с друзьями.", "Хочешь, я заеду за тобой позже?"],
+                    ["Мама, я получил пятёрку по математике!", "Вот молодец! Отмечаем?", "Да, купим торт!"],
+                    ["Мам, у меня завтра контрольная, поможешь подготовиться?", "Конечно, давай вместе решим задачи.", "Спасибо! Ты лучшая."],
+                    ["Мама, я задержусь на работе, не жди ужин.", "Хорошо, только позвони, когда освободишься.", "Обязательно позвоню."],
+                    ["Мам, ты забрала посылку?", "Да, лежит на кухне.", "Спасибо, посмотрю вечером."],
+                    ["Мама, мне нужно твое мнение: какую куртку выбрать?", "Покажи фото, я помогу выбрать.", "Отправил, какая лучше?"],
+                    ["Мама, я устал, сегодня было много занятий.", "Отдохни, я приготовлю чай и печенье.", "Спасибо, это именно то, что нужно."]
+                ],
+
+                dadConversations: [
+                    ["Пап, как дела?", "Нормально, сынок.", "Что делаешь?", "Смотрю телевизор."],
+                    ["Пап, можешь помочь с машиной?", "Конечно, что случилось?", "Не заводится двигатель.", "Проверим аккумулятор и стартер."],
+                    ["Пап, посоветуй фильм на вечер.", "Посмотри новый триллер, там отличные отзывы.", "Хорошо, спасибо за рекомендацию!"],
+                    ["Пап, я выиграл соревнование по шахматам!", "Поздравляю! Ты молодец.", "Без твоих уроков не справился бы."],
+                    ["Пап, могу я взять твой инструмент?", "Конечно, но будь осторожен.", "Обещаю, верну чистым."],
+                    ["Пап, какие планы на выходные?", "Думаю поехать на рыбалку.", "Можно я с тобой?", "Берём удочки и едем вместе!"],
+                    ["Пап, я купил подарок для мамы.", "Отличная идея, она будет рада.", "Надеюсь, ей понравится."],
+                    ["Пап, расскажи про свою молодость.", "Когда я был в твоем возрасте, мы играли на улице..."]
+                ],
+
+                brotherConversations: [
+                    ["Привет, брат!", "Привет! Как дела?", "Отлично, а у тебя?"],
+                    ["Брат, одолжишь наушники?", "Конечно, только береги их.", "Обещаю."],
+                    ["Брат, играть в футбол вечером?", "Давай, во сколько?", "В семь под школьным стадионом."],
+                    ["Брат, помоги с переездом моего стула.", "Без проблем, поднимем вместе.", "Спасибо!"],
+                    ["Брат, ты видел мой рюкзак?", "Да, оставил его в коридоре.", "Нашел, спасибо."],
+                    ["Брат, какие у тебя планы на каникулы?", "Хочу поехать к друзьям на дачу.", "Звучит здорово."],
+                    ["Брат, можно я воспользуюсь твоим ноутом?", "Ладно, но не устанавливай лишнего софта.", "Понял."],
+                    ["Брат, помнишь нашу игру?", "Конечно, до сих пор держу рекорд.", "Давай сыграем снова!"]
+                ],
+
+                sisterConversations: [
+                    ["Сестра, ты дома?", "Да, только пришла.", "Что нового?"],
+                    ["Сестра, одолжи платье на выпускной?", "Конечно, примеряй.", "Спасибо!"],
+                    ["Сестра, можешь помочь с прической?", "С удовольствием.", "Ты лучшая стилистка."],
+                    ["Сестра, поедем вместе за покупками?", "Давай, хочу новую сумку.", "Отлично."],
+                    ["Сестра, какие у тебя планы на вечер?", "Буду читать книгу.", "Может фильм посмотрим вместе?", "Давай!"],
+                    ["Сестра, ты сделала домашку по английскому?", "Да, проверила у репетитора.", "Можешь показать мои ошибки?"],
+                    ["Сестра, слышала новость?", "Какую?", "В школе объявили концерт.", "Надо участвовать!"],
+                    ["Сестра, поздравляю с днем рождения!", "Спасибо, ты самый лучший брат."]
+                ],
+
+                lovedOneMaleConversations: [
+                    ["Привет, любимый!", "Привет, моя хорошая! Как прошел твой день?"],
+                    ["Милый, скучаю по тебе.", "И я по тебе. Давай созвонимся вечером?"],
+                    ["Любимый, что хочешь на ужин?", "Твой салат и пасту.", "Готовлю с удовольствием."],
+                    ["Я тебя люблю.", "Я тоже тебя люблю больше всего на свете."],
+                    ["Как прошла твоя встреча?", "Хорошо, скоро расскажу.", "Жду с нетерпением."],
+                    ["Милый, поедем в путешествие?", "Хочу на море.", "Давай спланируем маршрут."],
+                    ["Любимый, ты видел мои фото?", "Да, ты невероятно красива.", "Спасибо!"],
+                    ["Я так рада, что мы вместе.", "И я счастлив каждый день с тобой."]
+                ],
+
+                lovedOneFemaleConversations: [
+                    ["Привет, любимая!", "Привет, дорогой! Как твой день?"],
+                    ["Милая, скучаю по тебе.", "И я по тебе. Когда увидимся?"],
+                    ["Любимая, что будем смотреть вечером?", "Давай комедию.", "Отлично, закажу попкорн."],
+                    ["Я тебя обожаю.", "И я тебя обожаю всем сердцем."],
+                    ["Как прошла твоя презентация?", "Успешно, жду твоей похвалы.", "Ты молодец!"],
+                    ["Милая, поедем на выходные в горы?", "Хочу свежий воздух.", "Спланируем поездку."],
+                    ["Любимая, ты видела новую одежду?", "Да, хочу примерить.", "Пойдем вместе в магазин."],
+                    ["Я счастлива с тобой.", "И я счастлив быть с тобой."]
+                ]
+
+            },
+            uz: {
+                language: 'Til',
+                english: 'English (Англияча)',
+                russian: 'Русский (Русча)',
+                uzbek: 'Oʻzbekcha (Ўзбекча)',
+                kazakh: 'Қазақша (Қозоқча)',
+                ukrainian: 'Українська (Украинча)',
+                belarusian: 'Беларуская (Белорусча)',
+                azerbaijani: 'Azərbaycanca (Озарбайжонча)',
+                turkish: 'Türkçe (Туркча)',
+                enterTelegramId: 'Telegram ID-ni kiriting',
+                submit: 'Yuborish',
+                resend: 'Qayta yuborish',
+                enterCode: 'Sizga yuborilgan 6 raqamli kodni kiriting: ',
+                verify: 'Tasdiqlash',
+                subscribeToChannels: 'Kanallarga obuna bo‘ling',
+                pleaseSubscribe: 'Iltimos, quyidagi kanallarga obuna bo‘ling:',
+                subscribeToNickNaymes2Bot: '@NickNaymes2Bot ga obuna bo‘lish',
+                subscribeToMessagesibotnews: '@messagesibotnews ga obuna bo‘lish',
+                checkSubscription: 'Obunani tekshirish',
+                backToIdInput: 'ID kiritish ekraniga qaytish',
+                mainMenu: 'Asosiy menyu',
+                settings: 'Sozlamalar',
+                currentLimits: 'Joriy cheklovlar: ',
+                start: 'Boshlash',
+                topUpLimits: 'Cheklovlarni to‘ldirish',
+                selectTopUpMethod: 'To‘ldirish usulini tanlang',
+                promoCode: 'Promokod',
+                watchAd: 'Reklama ko‘rish',
+                buyAd: 'Reklama sotib olish',
+                noAdsAvailable: 'Reklama mavjud emas',
+                continueAd: 'Davom etish',
+                enterUsername: 'Foydalanuvchi nomini kiriting',
+                next: 'Keyingi',
+                back: 'Orqaga',
+                selectGender: 'ning jinsini tanlang ',
+                male: 'Erkak',
+                female: 'Ayol',
+                loading: 'Yuklanmoqda...',
+                translating: 'O‘zbek tiliga tarjima qilinmoqda...',
+                displaying: 'Topilgan suhbatlar va xabarlar ko‘rsatilmoqda...',
+                selectChat: 'Suhbatni tanlang',
+                fakeChat: 'Men topib, o‘zbek tiliga tarjima qilgan xabarlar:',
+                enterPromoCode: 'Promokodni kiriting',
+                buyPromoCodes: 'Promokodlarni @Clickerstart_bot dan sotib olish mumkin',
+                noLimitsAvailable: 'Cheklovlar mavjud emas',
+                pleaseTopUp: 'Sizda cheklovlar qolmadi. Iltimos, to‘ldiring.',
+                backToMainMenu: 'Asosiy menyuga qaytish',
+                theme: 'Mavzu',
+                light: 'Yorqin',
+                dark: 'Qorong‘i',
+                apply: 'Qo‘llash',
+                invalidUsername: 'Noto‘g‘ri foydalanuvchi nomi!',
+                usernameAlreadyUsed: 'Bu foydalanuvchi nomi allaqachon tekshirilgan',
+                invalidCode: 'Noto‘g‘ri kod',
+                invalidPromoCode: 'Noto‘g‘ri promokod!',
+                promoCodeAlreadyUsed: 'Bu promokod allaqachon ishlatilgan!',
+                success: 'Muvaffaqiyat!',
+                mom: 'Ona',
+                dad: 'Ota',
+                brother: 'Aka',
+                sister: 'Opa',
+                lovedOne: 'Sevgi',
+                lovedOneMale: 'Sevgilim',
+                lovedOneFemale: 'Sevimli',
+                youCantCheckSamePerson: 'Bir xil shaxsni bir necha marta tekshirib bo‘lmaydi!',
+                promoCodesEntered: 'Kiritilgan promokodlar: ',
+                limitsFromPromos: 'Promokodlardan olingan cheklovlar: ',
+                requestDataDeletion: 'Ma‘lumotlarni o‘chirish so‘rovi',
+                enterDeletionCode: 'Ma‘lumotlarni o‘chirish uchun kodni kiriting',
+                deletionCodeIncorrect: 'Noto‘g‘ri kod!',
+                getDeletionCode: 'O‘chirish kodini @Clickerstart_bot dan olish mumkin',
+                deletionCodePlaceholder: 'O‘chirish kodi',
+                findTelegramId: 'Telegram ID-ni bu yerda bilib olishingiz mumkin: <a href="https://t.me/my_id_bot" id="a2"><u>@my_id_bot</u></a>',
+                telegramIdPlaceholder: 'Sizning Telegram ID-ingiz',
+                momConversations: [
+                    ["Salom, ona!", "Salom, azizam! Bugun qanday o‘tyapti?"],
+                    ["Ona, men sayrga chiqsam bo‘ladimi?", "Qayerga bormoqchisan?", "Do‘stlarim bilan bog‘ga.", "Xohlaysanmi, keyin seni olib ketaman?"],
+                    ["Ona, men matematikadan besh oldim!", "Ajoyib! Nişonlaymizmi?", "Ha, tort olamiz!"],
+                    ["Ona, ertaga nazorat ishi bor, tayyorlanishda yordam berasanmi?", "Albatta, birga masalalarni yechamiz.", "Rahmat! Eng zo‘rsan."],
+                    ["Ona, ishda kech qolaman, kechki ovqatni kutma.", "Xo‘p, faqat bo‘shaganingda qo‘ng‘iroq qil.", "Albatta, qo‘ng‘iroq qilaman."],
+                    ["Ona, posilkani oldingmi?", "Ha, oshxonada turibdi.", "Rahmat, kechqurun ko‘raman."],
+                    ["Ona, menga fikring kerak: qaysi kurtkani tanlay?", "Rasmini yubor, tanlashga yordam beraman.", "Yubordim, qaysi biri yaxshiroq?"],
+                    ["Ona, charchadim, bugun ko‘p darslar bo‘ldi.", "Dam ol, men choy va pechenye tayyorlayman.", "Rahmat, aynan shu kerak edi."]
+                ],
+
+                dadConversations: [
+                    ["Dada, yaxshimisiz?", "Yaxshi, o‘g‘lim.", "Nima qilyapsiz?", "Televizor ko‘ryapman."],
+                    ["Dada, mashina bilan yordam bera olasizmi?", "Albatta, nima bo‘ldi?", "Dvigatel ishga tushmayapti.", "Akkumulyator va starterni tekshiramiz."],
+                    ["Dada, kechki film uchun maslahat bering.", "Yangi trillerga qarang, yaxshi fikrlar bor.", "Yaxshi, rahmat tavsiya uchun!"],
+                    ["Dada, shaxmat musobaqasida yutdim!", "Tabriklayman! Ajoyib ish qilding.", "Sizning darslarsiz bo‘lmasdi."],
+                    ["Dada, asbobingizni olsam bo‘ladimi?", "Albatta, lekin ehtiyot bo‘l.", "Va’da beraman, toza qilib qaytaraman."],
+                    ["Dada, dam olish kunlariga rejalaringiz bormi?", "Baliq oviga bormoqchiman.", "Men ham borsam bo‘ladimi?", "Qarmoqlarni olamiz va birga ketamiz!"],
+                    ["Dada, onamga sovg‘a oldim.", "Zo‘r g‘oya, u hursand bo‘ladi.", "Umid qilamanki, yoqadi."],
+                    ["Dada, yoshliklaringiz haqida ayting.", "Men sening yoshingda ko‘chada o‘ynardik..."]
+                ],
+
+                brotherConversations: [
+                    ["Salom, aka!", "Salom! Qalaysan?", "Zo‘r, o‘zingchi?"],
+                    ["Aka, quloqchinlaringni bersang bo‘ladimi?", "Albatta, faqat ehtiyot bo‘l.", "Va’da beraman."],
+                    ["Aka, kechqurun futbol o‘ynaymizmi?", "Bo‘ladi, soat nechada?", "Soat yettida maktab stadionida."],
+                    ["Aka, stulni ko‘chirishda yordam berasanmi?", "Muammo yo‘q, birga ko‘taramiz.", "Rahmat!"],
+                    ["Aka, mening ryukzagimni ko‘rdingmi?", "Ha, yo‘lakda qoldirgansan.", "Topdim, rahmat."],
+                    ["Aka, ta’tilga qanday rejalaring bor?", "Do‘stlarimnikiga dacha tomonga bormoqchiman.", "Zo‘r eshitilyapti."],
+                    ["Aka, noutbukingdan foydalansam bo‘ladimi?", "Bo‘ladi, faqat keraksiz dasturlarni o‘rnatma.", "Tushunarli."],
+                    ["Aka, bizning o‘yinimizni eslaysanmi?", "Albatta, hali ham rekord mening nomimda.", "Qayta o‘ynaymiz!"]
+                ],
+
+                sisterConversations: [
+                    ["Opa, uydamisan?", "Ha, hozir keldim.", "Yangi nima gaplar?"],
+                    ["Opa, bitiruv uchun ko‘ylagingni berasanmi?", "Albatta, kiyib ko‘r.", "Rahmat!"],
+                    ["Opa, sochimni tarashda yordam berasanmi?", "Marhamat bilan.", "Eng yaxshi stilistsan."],
+                    ["Opa, birga xaridga chiqamizmi?", "Bo‘ladi, yangi sumka olmoqchiman.", "Ajoyib."],
+                    ["Opa, kechqurun qanday rejalaring bor?", "Kitob o‘qiyman.", "Birga film ko‘ramizmi?", "Bo‘ladi!"],
+                    ["Opa, inglizdan uy vazifasini qildingmi?", "Ha, repetitorga tekshirtirdim.", "Xatolarimni ko‘rsatib bera olasanmi?"],
+                    ["Opa, yangilikni eshitdingmi?", "Qaysi?", "Maktabda kontsert e’lon qilishdi.", "Ishtirok etish kerak!"],
+                    ["Opa, tug‘ilgan kuning bilan!", "Rahmat, sen eng zo‘r ukamsan."]
+                ],
+
+                lovedOneMaleConversations: [
+                    ["Salom, jonim!", "Salom, azizam! Kun qanday o‘tdi?"],
+                    ["Azizim, seni sog‘indim.", "Men ham seni. Kechqurun gaplashamizmi?"],
+                    ["Sevgilim, kechki ovqatga nima xohlaysan?", "Salatingni va pastangni.", "Mamnuniyat bilan tayyorlayman."],
+                    ["Men seni yaxshi ko‘raman.", "Men ham seni dunyodagi eng ko‘p yaxshi ko‘raman."],
+                    ["Uchrashuving qanday o‘tdi?", "Yaxshi, tez orada aytaman.", "Kutiayapman."],
+                    ["Azizim, sayohatga chiqamizmi?", "Dengizga bormoqchiman.", "Yo‘nalishni rejalashtiraylik."],
+                    ["Sevgilim, suratlarimni ko‘rdingmi?", "Ha, sen juda go‘zalsan.", "Rahmat!"],
+                    ["Seni bilan bo‘lganimdan juda xursandman.", "Men ham har kuni seni bilan baxtliman."]
+                ],
+
+                lovedOneFemaleConversations: [
+                    ["Salom, jonim!", "Salom, azizim! Kuning qanday o‘tdi?"],
+                    ["Azizam, seni sog‘indim.", "Men ham seni. Qachon ko‘rishamiz?"],
+                    ["Sevgilim, kechqurun nima ko‘ramiz?", "Komediya ko‘raylik.", "Zo‘r, popkorn buyurtma qilaman."],
+                    ["Men seni juda yaxshi ko‘raman.", "Men ham seni butun yuragim bilan yaxshi ko‘raman."],
+                    ["Prezentatsiyang qanday o‘tdi?", "Muvaffaqiyatli, maqtovingni kutayapman.", "Ajoyib ish qilding!"],
+                    ["Azizam, dam olish kunlari tog‘larga chiqamizmi?", "Toza havo xohlayman.", "Sayohatni rejalashtiramiz."],
+                    ["Sevgilim, yangi kiyimni ko‘rdingmi?", "Ha, kiyib ko‘rmoqchiman.", "Birga do‘konga boramiz."],
+                    ["Men seni bilan baxtliman.", "Men ham seni bilan bo‘lishdan baxtiyorman."]
+                ]
+
+            },
+            kk: {
+                language: 'Тіл',
+                english: 'English (Ағылшынша)',
+                russian: 'Русский (Орысша)',
+                uzbek: 'Oʻzbekcha (Өзбекше)',
+                kazakh: 'Қазақша (Қазақша)',
+                ukrainian: 'Українська (Украинша)',
+                belarusian: 'Беларуская (Беларусша)',
+                azerbaijani: 'Azərbaycanca (Әзірбайжанша)',
+                turkish: 'Türkçe (Түрікше)',
+                enterTelegramId: 'Telegram ID-ді енгізіңіз',
+                submit: 'Жіберу',
+                resend: 'Қайта жіберу',
+                enterCode: 'Сізге жіберілген 6 санды кодты енгізіңіз: ',
+                verify: 'Растау',
+                subscribeToChannels: 'Арналарға жазылу',
+                pleaseSubscribe: 'Келесі арналарға жазылыңыз:',
+                subscribeToNickNaymes2Botswana: '@NickNaymes2Bot-қа жазылу',
+                subscribeToMessagesibotnews: '@messagesibotnews-ке жазылу',
+                checkSubscription: 'Жазылуды тексеру',
+                backToIdInput: 'ID енгізу экранына қайту',
+                mainMenu: 'Негізгі мәзір',
+                settings: 'Параметрлер',
+                currentLimits: 'Ағымдағы шектеулер: ',
+                start: 'Бастау',
+                topUpLimits: 'Шектеулерді толтыру',
+                selectTopUpMethod: 'Толтыру әдісін таңдаңыз',
+                promoCode: 'Промокод',
+                watchAd: 'Жарнама көру',
+                buyAd: 'Жарнама сатып алу',
+                noAdsAvailable: 'Жарнама қолжетімсіз',
+                continueAd: 'Жалғастыру',
+                enterUsername: 'Пайдаланушы атын енгізіңіз',
+                next: 'Келесі',
+                back: 'Артқа',
+                selectGender: 'нің жынысін таңдаңыз ',
+                male: 'Ер',
+                female: 'Әйел',
+                gender: 'Жыныс',
+                loading: 'Жүктелуде...',
+                translating: 'Қазақ тіліне аударылуда...',
+                displaying: 'Табылған чаттар мен хабарламалар көрсетілуде...',
+                selectChat: 'Чатты таңдаңыз',
+                chatMessages: 'Мен тауып, қазақ тіліне аударған хабарламалар:',
+                enterPromoCode: 'Промокодты енгізіңіз',
+                buyPromoCodes: 'Промокодтарды @ClickerstartBot-тан сатып алуға болады',
+                noLimitsAvailable: 'Шектеулер қолжетімсіз',
+                pleaseTopUp: 'Сізде шектеулер қалмады. Толтырыңыз.',
+                backToMainMenu: 'Негізгі мәзірге қайту',
+                mainMenu: 'Негізгі мәзір',
+                theme: 'Тақырып',
+                light: 'Жарық',
+                dark: 'Қараңғы',
+                apply: 'Қолдану',
+                invalidUsername: 'Қате пайдаланушы аты!',
+                usernameAlreadyUsed: 'Бұл пайдаланушы аты тексеріліп қойған',
+                invalidCode: 'Қате код!',
+                invalidPromoCode: 'Қате промокод!',
+                promoCodeAlreadyUsed: 'Бұл промокод әлде қолданылған!',
+                success: 'Сәтті!',
+                mom: 'Ана',
+                dad: 'Әке',
+                brother: 'Аға',
+                sister: 'Әпке',
+                lovedOne: 'Сүйікті',
+                lovedOneMale: 'Сүйікті (ер)',
+                lovedOneFemale: 'Сүйікті (әйел)',
+                youCantCheckSamePerson: 'Бір адамды бірнеше рет тексеруге болмайды!',
+                promoCodesEntered: 'Кірістірілген промокодтар: ',
+                limitsFromPromos: 'Промокодтардан алынған шектеулер: ',
+                requestDataDeletion: 'Деректерді жою сұрауы',
+                enterDeletionCode: 'Деректерді жою үшін кодты енгізіңіз',
+                deletionCodeIncorrect: 'Қате код!',
+                getDeletionCode: 'Жою кодын @ClickerstartBot-тан алуға болады',
+                deletionCodePlaceholder: 'Жою коды',
+                findTelegramId: 'Telegram ID-ді мында білуге болады: <a href="https://t.me/my_id_bot" id="a2"><u>@my_id_bot</u></a>',
+                telegramIdPlaceholder: 'Сіздің Telegram ID',
+                momConversations: [
+                    ["Сәлем, мама!", "Сәлем, балам! Күнің қалай өтті?"],
+                    ["Мама, мен серуенге шықсам бола ма?", "Қайда бармақсың?", "Достарыммен саябаққа.", "Қаласаң, кейін өзім алып кетем."],
+                    ["Мама, мен математикадан бестік алдым!", "Жарайсың! Тойлаймыз ба?", "Иә, торт сатып алайық!"],
+                    ["Мама, ертең бақылау жұмысым бар, дайындалуға көмектесесің бе?", "Әрине, бірге есептер шығарамыз.", "Рақмет! Сен ең кереметсің."],
+                    ["Мама, мен жұмыста кешігем, кешкі асты күтпе.", "Жақсы, босасаң хабарлас.", "Міндетті түрде хабарласам."],
+                    ["Мама, сәлемдемені алып кеттің бе?", "Иә, асүйде тұр.", "Рақмет, кешке қарай қараймын."],
+                    ["Мама, сенің пікірің қажет: қай куртканы таңдаған дұрыс?", "Фотосын жібер, мен көмектесем.", "Жібердім, қайсысы жақсырақ?"],
+                    ["Мама, мен шаршадым, бүгін көп сабақ болды.", "Демал, мен шай мен печенье дайындаймын.", "Рақмет, дәл осы керек еді."]
+                ],
+
+                dadConversations: [
+                    ["Папа, қалайсың?", "Жақсы, балам.", "Не істеп жатырсың?", "Теледидар қарап отырмын."],
+                    ["Папа, көлікпен көмектесе аласың ба?", "Әрине, не болды?", "Қозғалтқыш жұмыс істемей жатыр.", "Аккумулятор мен стартерді тексереміз."],
+                    ["Папа, кешке қандай фильм көрейін?", "Жаңа триллер көр, жақсы пікірлер бар.", "Жақсы, кеңесіңе рахмет!"],
+                    ["Папа, мен шахмат жарысында жеңдім!", "Құттықтаймын! Жарайсың.", "Сенің сабақтарыңсыз болмас еді."],
+                    ["Папа, құралдарыңды алсам бола ма?", "Әрине, бірақ абай бол.", "Уәде берем, таза күйінде қайтарам."],
+                    ["Папа, демалыс күндері не жоспар?", "Балық аулауға барғым келіп тұр.", "Мен де барайын ба?", "Қармақтарды алып, бірге барайық!"],
+                    ["Папа, мамаға сыйлық сатып алдым.", "Керемет ой, ол қуанады.", "Үміттенем, ұнайды."],
+                    ["Папа, жастығың туралы айтып берші.", "Мен сенің жасыңда аулада ойнайтынбыз..."]
+                ],
+
+                brotherConversations: [
+                    ["Сәлем, аға!", "Сәлем! Қалайсың?", "Керемет, өзің ше?"],
+                    ["Аға, құлаққаптарыңды бере тұршы?", "Әрине, тек абай бол.", "Уәде берем."],
+                    ["Аға, кешке футбол ойнаймыз ба?", "Болады, сағат нешеде?", "Сағат жетіде мектеп стадионында."],
+                    ["Аға, орындықты жылжытуға көмектесші.", "Жарайды, бірге көтереміз.", "Рақмет!"],
+                    ["Аға, менің сөмкемді көрдің бе?", "Иә, дәлізде қалдырғансың.", "Таптым, рахмет."],
+                    ["Аға, демалысқа не жоспарлап отырсың?", "Достарымның дачасына барғым келеді.", "Тамаша естіледі."],
+                    ["Аға, ноутбугіңді қолдансам бола ма?", "Жарайды, бірақ артық бағдарлама орнатпа.", "Түсіндім."],
+                    ["Аға, біздің ойынды есіңде ме?", "Әрине, рекорд әлі менде.", "Қайта ойнайық!"]
+                ],
+
+                sisterConversations: [
+                    ["Әпке, үйдесің бе?", "Иә, енді ғана келдім.", "Жаңалық бар ма?"],
+                    ["Әпке, бітіруге көйлегіңді бере тұрасың ба?", "Әрине, киіп көр.", "Рақмет!"],
+                    ["Әпке, шашымды жасауға көмектесесің бе?", "Қуана көмектесем.", "Сен ең керемет стилистсің."],
+                    ["Әпке, бірге дүкенге барайықшы?", "Кеттік, жаңа сөмке алғым келеді.", "Тамаша."],
+                    ["Әпке, кешке не жоспарлап отырсың?", "Кітап оқимын.", "Бірге фильм көрейік пе?", "Келістік!"],
+                    ["Әпке, ағылшын үй тапсырмасын жасадың ба?", "Иә, репетиторға көрсеттім.", "Менің қателерімді көрсетіп бере аласың ба?"],
+                    ["Әпке, жаңалықты естідің бе?", "Қайсысын?", "Мектепте концерт болады деді.", "Қатысу керек!"],
+                    ["Әпке, туған күніңмен!", "Рақмет, сен ең жақсы інімсің."]
+                ],
+
+                lovedOneMaleConversations: [
+                    ["Сәлем, жаным!", "Сәлем, сүйіктім! Күнің қалай өтті?"],
+                    ["Сүйіктім, сені сағындым.", "Мен де сені. Кешке хабарласамыз ба?"],
+                    ["Жаным, кешкі асқа не қалайсың?", "Сенің салатың мен пастаң.", "Қуана дайындаймын."],
+                    ["Мен сені жақсы көремін.", "Мен де сені әлемдегі бәрінен қатты жақсы көремін."],
+                    ["Кездесу қалай өтті?", "Жақсы, тезірек айтып берем.", "Күтемін."],
+                    ["Жаным, саяхатқа шығайықшы?", "Теңізге барғым келеді.", "Маршрут құрайық."],
+                    ["Сүйіктім, менің суреттерімді көрдің бе?", "Иә, сен өте әдемісің.", "Рақмет!"],
+                    ["Біз бірге болғанымызға қуаныштымын.", "Мен де әр күнімді бақытпен өткізем сенімен."]
+                ],
+
+                lovedOneFemaleConversations: [
+                    ["Сәлем, жаным!", "Сәлем, сүйіктім! Күнің қалай өтті?"],
+                    ["Жаным, сені сағындым.", "Мен де сені. Қашан көрісеміз?"],
+                    ["Сүйіктім, кешке не көреміз?", "Комедия көрейік.", "Жақсы, попкорнға тапсырыс берем."],
+                    ["Мен сені қатты жақсы көремін.", "Мен де сені шын жүректен жақсы көремін."],
+                    ["Презентацияң қалай өтті?", "Сәтті, мақтауыңды күтіп тұрмын.", "Жарайсың!"],
+                    ["Жаным, демалыста тауға барайықшы?", "Таза ауа керек маған.", "Саяхат жоспарлайық."],
+                    ["Сүйіктім, жаңа киім көрдің бе?", "Иә, киіп көргім келеді.", "Бірге дүкенге барайық."],
+                    ["Мен сенімен бақыттымын.", "Мен де сенімен бірге болуға қуаныштымын."]
+                ]
+
+            },
+            be: {
+                language: 'Мова',
+                english: 'English (Англійская)',
+                russian: 'Русский (Руская)',
+                uzbek: 'Oʻzbekcha (Узбецкая)',
+                kazakh: 'Қазақша (Казахская)',
+                ukrainian: 'Українська (Украінская)',
+                belarusian: 'Беларуская (Беларуская)',
+                azerbaijani: 'Azərbaycanca (Азербайджанская)',
+                azerbaijan: 'Azərbayc',
+                turkish: 'Türkçe (Турецкая)',
+                enterTelegramId: 'Увядзіце ваш Telegram ID',
+                submit: 'Адправіць',
+                resend: 'Паўтарыць',
+                enterCode: 'Увядзіце 6-значны код, адпраўлены вам: ',
+                verify: 'Праверыць',
+                subscribeToChannels: 'Падпісацца на каналы',
+                pleaseSubscribe: 'Калі ласка, падпішыцеся на наступныя каналы:',
+                subscribeToNickNaymes2Bot: 'Падпісацца на @NickNaymes2Bot',
+                subscribeToMessagesibotnews: 'Падпісацца на @messagesibotnews',
+                checkSubscription: 'Праверыць падпіску',
+                backToIdInput: 'Вярнуцца да экрана ўводу ID',
+                mainMenu: 'Меню',
+                settings: 'Налады',
+                currentLimits: 'Бягучыя абмежаванні: ',
+                start: 'Пачаць',
+                topUpLimits: 'Папоўніць абмежаванні',
+                selectTopUpMethod: 'Выберыце метад папаўнення',
+                promoCode: 'Промакод',
+                watchAd: 'Глядзець рэкламу',
+                buyAd: 'Купіць рэкламу',
+                noAdsAvailable: 'Рэклама недаступная',
+                continueAd: 'Працягнуць',
+                enterUsername: 'Увядзіце імя карыстальніка',
+                next: 'Далей',
+                back: 'Назад',
+                selectGender: 'Выберыце пол ',
+                male: 'Мужчынскі',
+                female: 'Жаноскі',
+                gender: 'Пол',
+                loading: 'Загрузка...',
+                translating: 'Пераклад на беларусскую...',
+                displaying: 'Паказаны знойдзеныя чаты і паведам',
+                selectChat: 'Выбраць чат',
+                fakeChat: 'Перапіска, якую я змаўчыў знайсці і перакласці на беларусскую:',
+                enterPromoCode: 'Увядзіце промакод',
+                buyPromoCodes: 'Промакоды можна купіць у @ClickerstartBot',
+                noLimitsAvailable: 'Абмежаванні недаступныя',
+                pleaseTopUp: 'У вас не засталося абмежаванняў. Калі ласка, папоў',
+                backToMainMenu: 'Вярнуцца ў галоўное меню',
+                mainMenu: 'Меню',
+                theme: 'Тэма',
+                light: 'Светлая',
+                dark: 'Цёмная',
+                apply: 'Ужыць',
+                invalidUsername: 'Няправільнае імя карыстальніка!',
+                usernameAlreadyUsed: 'Гэтае імя карыстальніка єжо было праверана',
+                invalidCode: 'Няправільны код',
+                invalidPromoCode: 'Няправільны промакод!',
+                promoCodeAlreadyUsed: 'Гэты промакод ужо выкарыстаны!',
+                success: 'Поспех!',
+                mom: 'Мама',
+                dad: 'Тата',
+                brother: 'Брат',
+                sister: 'Сястра',
+                lovedOne: 'Каханая',
+                lovedOneMale: 'Каханы',
+                lovedOneFemale: 'Каханая',
+                youCantCheckSamePerson: 'Нельга правяраць аднаго і таго ж чалавека некалькі разоў!',
+                promoCodesEntered: 'Уведзеныя промакоды: ',
+                limitsFromPromos: 'Абмежаванні ад промакодаў: ',
+                requestDataDeletion: 'Запыт на выдаленне дадзеных',
+                enterDeletionCode: 'Увядзіце код для выдалення дадзеных',
+                deletionCodeIncorrect: 'Няправільны код!',
+                getDeletionCode: 'Код выдалення можна ўзяць у @ClickerstartBot',
+                deletionCodePlaceholder: 'Код выдалення',
+                findTelegramId: 'Ваш Telegram ID можна даведацца тут: <a href="https://t.me/my_id_bot" id="a2"><u>@my_id_bot</u></a>',
+                telegramIdPlaceholder: 'Ваш Telegram ID',
+                momConversations: [
+                    ["Прывітанне, мама!", "Прывітанне, даражэнькі! Як справы?"],
+                    ["Мам, можна я пайду пагуляць?", "Куды хочаш?", "У парк з сябрамі.", "Хочаш, я потым за табой заеду?"],
+                    ["Мама, я атрымаў пяцёрку па матэматыцы!", "Малайчына! Святкуем?", "Так, купім торт!"],
+                    ["Мам, у мяне заўтра кантрольная, дапаможаш падрыхтавацца?", "Канешне, разам вырашым задачы.", "Дзякуй! Ты лепшая."],
+                    ["Мам, я затрымаюся на працы, не чакай вячэры.", "Добра, толькі патэлефануй, калі вызвалішся.", "Абавязкова патэлефаную."],
+                    ["Мам, ты забрала пасылку?", "Так, ляжыць на кухні.", "Дзякуй, пагляджу ўвечары."],
+                    ["Мам, мне трэба тваё меркаванне: якую куртку выбраць?", "Пакажы фота, я дапамагу.", "Адправіў, якая лепшая?"],
+                    ["Мама, я стаміўся, сёння было шмат заняткаў.", "Адпачні, я зраблю чай і печыва.", "Дзякуй, гэта тое, што трэба."]
+                ],
+
+                dadConversations: [
+                    ["Тата, як справы?", "Нармальна, сынок.", "Што робіш?", "Гляджу тэлевізар."],
+                    ["Тата, дапаможаш з машынай?", "Канешне, што здарылася?", "Двигун не заводзіцца.", "Праверым акумулятар і стартар."],
+                    ["Тата, парай фільм на вечар.", "Паглядзі новы трылер, добрыя водгукі.", "Добра, дзякуй за параду!"],
+                    ["Тата, я выйграў спаборніцтва па шахматах!", "Віншую! Малайчына.", "Без тваіх урокаў не справіўся б."],
+                    ["Тата, можна ўзяць твае інструменты?", "Канешне, толькі асцярожна.", "Абяцаю, вярну чыстымі."],
+                    ["Тата, якія планы на выходныя?", "Думаю паехаць на рыбалку.", "Можна я з табой?", "Бяром вудкі і едзем разам!"],
+                    ["Тата, я купіў падарунак для мамы.", "Выдатная ідэя, яна будзе рада.", "Спадзяюся, спадабаецца."],
+                    ["Тата, раскажы пра сваю маладосць.", "Калі я быў у тваім узросце, мы гулялі на вуліцы..."]
+                ],
+
+                brotherConversations: [
+                    ["Прывітанне, брат!", "Прывітанне! Як справы?", "Выдатна, а ў цябе?"],
+                    ["Брат, аддасіш навушнікі?", "Канешне, толькі беражы іх.", "Абяцаю."],
+                    ["Брат, гуляем у футбол вечарам?", "Давай, у колькі?", "А сёмай каля школьнага стадыёна."],
+                    ["Брат, дапамажы перанесці мой стул.", "Без праблем, падымем разам.", "Дзякуй!"],
+                    ["Брат, ты бачыў мой заплечнік?", "Так, пакінуў яго ў калідоры.", "Знайшоў, дзякуй."],
+                    ["Брат, якія ў цябе планы на канікулы?", "Хачу паехаць да сяброў на дачу.", "Гучыць класна."],
+                    ["Брат, можна я скарыстаюся тваім ноўтбукам?", "Добра, але нічога лішняга не ўстанаўлівай.", "Зразумеў."],
+                    ["Брат, памятаеш нашу гульню?", "Канешне, рэкорд дагэтуль у мяне.", "Давай згуляем зноў!"]
+                ],
+
+                sisterConversations: [
+                    ["Сястра, ты дома?", "Так, толькі прыйшла.", "Што новага?"],
+                    ["Сястра, пазыч сукенку на выпускны?", "Канешне, прымярай.", "Дзякуй!"],
+                    ["Сястра, дапамажаш з прычоскай?", "З задавальненнем.", "Ты лепшы стыліст."],
+                    ["Сястра, паедзем разам у крамы?", "Давай, хачу новую сумку.", "Выдатна."],
+                    ["Сястра, якія ў цябе планы на вечар?", "Буду чытаць кнігу.", "Можа паглядзім разам фільм?", "Давай!"],
+                    ["Сястра, ты зрабіла англійскую дамашку?", "Так, паказала рэпетытару.", "Пакажаш мае памылкі?"],
+                    ["Сястра, чула навіну?", "Якую?", "У школе абвясцілі канцэрт.", "Трэба ўдзельнічаць!"],
+                    ["Сястра, віншую з днём нараджэння!", "Дзякуй, ты лепшы брат."]
+                ],
+
+                lovedOneMaleConversations: [
+                    ["Прывітанне, каханы!", "Прывітанне, мая мілая! Як прайшоў дзень?"],
+                    ["Міленькі, сумую па табе.", "І я па табе. Пагаворым увечары?"],
+                    ["Каханы, што хочаш на вячэру?", "Твой салата і паста.", "З радасцю прыгатую."],
+                    ["Я цябе кахаю.", "Я таксама цябе кахаю больш за ўсё на свеце."],
+                    ["Як прайшла сустрэча?", "Добра, хутка раскажу.", "Чакаю з нецярпеннем."],
+                    ["Міленькі, паедзем у падарожжа?", "Хачу да мора.", "Давай сплануем маршрут."],
+                    ["Каханы, ты бачыў мае фота?", "Так, ты неверагодна прыгожая.", "Дзякуй!"],
+                    ["Я такая шчаслівая, што мы разам.", "І я шчаслівы з табой кожны дзень."]
+                ],
+
+                lovedOneFemaleConversations: [
+                    ["Прывітанне, каханая!", "Прывітанне, дарагі! Як прайшоў дзень?"],
+                    ["Мілая, сумую па табе.", "І я па табе. Калі ўбачымся?"],
+                    ["Каханая, што паглядзім вечарам?", "Давай камедыю.", "Цудоўна, закажу папкорн."],
+                    ["Я цябе абажаю.", "І я цябе ўсім сэрцам абажаю."],
+                    ["Як прайшла прэзентацыя?", "Паспяхова, чакаю тваёй пахвалы.", "Ты малайчына!"],
+                    ["Мілая, паедзем на выходныя ў горы?", "Хачу свежага паветра.", "Сплануем паездку."],
+                    ["Каханая, бачыла новую вопратку?", "Так, хачу прымерыць.", "Пойдзем разам у краму."],
+                    ["Я шчаслівая з табой.", "І я шчаслівы быць з табой."]
+                ]
+
+            },
+            az: {
+                language: 'Dil',
+                english: 'English (İngilis)',
+                russian: 'Русский (Рус)',
+                uzbek: 'Oʻzbekcha (Özbək)',
+                kazakh: 'Қазақша (Qazaq)',
+                ukrainian: 'Українська (Ukrayna)',
+                belarusian: 'Беларуская (Belarus)',
+                azerbaijani: 'Azərbaycanca (Azərbaycan)',
+                turkish: 'Türkçe (Türk)',
+                enterTelegramId: 'Telegram ID-nizi daxil edin',
+                submit: 'Göndər',
+                resend: 'Yenidən göndər',
+                enterCode: 'Sizə göndərilən 6 rəqəmli kodu daxil edin: ',
+                verify: 'Təsdiqlə',
+                subscribeToChannels: 'Kanallara abunə olun',
+                pleaseSubscribe: 'Xahiş edirik, aşağıdakı kanallara abunə olun:',
+                subscribeToNickNaymes2Bot: '@NickNaymes2Bot-a abunə olun',
+                subscribeToMessagesibotnews: '@messagesibotnews-a abunə olun',
+                checkSubscription: 'Abunəliyi yoxla',
+                backToIdInput: 'ID daxil etmə ekranına qayıt',
+                mainMenu: 'Əsas menyu',
+                settings: 'Parametlər',
+                currentLimits: 'Cari limitlər ',
+                start: 'Başla',
+                topUpLimits: 'Limitləri artır',
+                selectTopUpMethod: 'Artırma üsulunu seçin',
+                promoCode: 'Promokod',
+                watchAd: 'Rəklam',
+                buyAd: 'Rəklam al',
+                noAdsAvailable: 'Rəklam yoxdur',
+                continueAd: 'Davam et',
+                enterUsername: 'İstifadəçi adını daxil edin',
+                next: 'Növbəti',
+                back: 'Geri',
+                selectGender: 'nın cinsini seçin ',
+                male: 'Kişi',
+                female: 'Qadın',
+                gender: 'Cins',
+                loading: 'Yüklənir...',
+                translating: 'Azərbaycan dilinə tərcümə olunur...',
+                displaying: 'Tapılan söhbətlər və mesajlar göstərilir...',
+                selectChat: 'Söhbət seç',
+                fakeChat: 'Mən tapıb Azərbaycan dilinə tərcümə etdiyim yazışmalar:',
+                enterPromoCode: 'Promokod daxil edin',
+                buyPromoCodes: 'Promokodları @ClickerstartBot-dan ala bilərsiniz',
+                noLimitsAvailable: 'Limit yoxdur',
+                pleaseTopUp: 'Sizdə limit qalmayıb. Xahiş edirik, artırın.',
+                backToMainMenu: 'Əsas menyuya qayıt',
+                mainMenu: 'Menyu',
+                theme: 'Mövzu',
+                light: 'Açıq',
+                dark: 'Qaranlıq',
+                apply: 'Tətbiq et',
+                invalidUsername: 'Yanlış istifadəçi adı!',
+                usernameAlreadyUsed: 'Bu istifadəçi adı artıq yoxlanılıb',
+                invalidCode: 'Yanlış kod',
+                invalidPromoCode: 'Yanlıma kod!',
+                promoCodeAlreadyUsed: 'Bu promokod artıq istifadə olunub!',
+                success: 'Uğur!',
+                mom: 'Ana',
+                dad: 'Ata',
+                brother: 'Qardaş',
+                sister: 'Bacı',
+                lovedOne: 'Sevgi',
+                lovedOneMale: 'Sevgilim',
+                lovedOneFemale: 'Sevimli',
+                youCantCheckSamePerson: 'Eyni şəxsi bir neçə dəfə yoxlamaq olmaz!',
+                promoCodesEntered: 'Daxil edilmiş promokodlar: ',
+                limitsFromPromos: 'Promokodlardan alınan limitlər ',
+                requestDataDeletion: 'Məlumatları silmək üçün sorğu',
+                enterDeletionCode: 'Məlumatları silmək üçün kodu daxil edin',
+                deletionCodeIncorrect: 'Yanlış kod!',
+                getDeletionCode: 'Silmə kodunu @ClickerstartBot-dan ala bilərsiniz',
+                deletionCodePlaceholder: 'Silmə kodu',
+                findTelegramId: 'Telegram ID-nizi burada öyrənə bilərsiniz: <a href="https://t.me/my_id_bot" id="a2"><u>@my_id_bot</u></a>',
+                telegramIdPlaceholder: 'Sizin Telegram ID',
+                momConversations: [
+                    ["Salam, ana!", "Salam, əzizim! Bugün necə sənsən?"],
+                    ["Ana, gəzməyə gedə bilərəm?", "Haraya getmək istəyirsən?", "Dostlarla parka.", "İstəyirsən, sonra səni aparım?"],
+                    ["Ana, riyaziyyatdan beş aldım!", "Əla! Qeyd edək?", "Bəli, tort alaq!"],
+                    ["Ana, sabah imtahanım var, mənə kömək edərsən?", "Əlbəttə, birlikdə tapşırıqları həll edək.", "Təşəkkür! Sən ən yaxşısan."],
+                    ["Ana, işdə gecikəcəm, nahar üçün gözləmə.", "Yaxşı, azad olanda zəng et.", "Mütləq zəng edəcəm."],
+                    ["Ana, paketi götürdün?", "Bəli, mətbəxdədir.", "Təşəkkür, axşam baxaram."],
+                    ["Ana, fikrini bilmək istəyirəm: hansı gödəkçəni seçim?", "Foto göndər, kömək edərəm.", "Göndərdim, hansı daha yaxşıdır?"],
+                    ["Ana, yoruldum, bu gün çox dərs oldu.", "Dincəl, mən çay və peçenye hazırlayaram.", "Təşəkkür, məhz buna ehtiyacım var."]
+                ],
+
+                dadConversations: [
+                    ["Ata, necəsən?", "Yaxşıyam, oğlum.", "Nə edirsən?", "Televiziya izləyirəm."],
+                    ["Ata, maşına kömək edə bilərsən?", "Əlbəttə, nə olub?", "Mühərrik işə düşmür.", "Akumulyatoru və startı yoxlayaq."],
+                    ["Ata, axşam üçün film tövsiyə et.", "Yeni trillerə bax, rəylər yaxşıdır.", "Yaxşı, tövsiyə üçün təşəkkür!"],
+                    ["Ata, şahmat müsabiqəsini qazandım!", "Təbriklər! Gözəl işdir.", "Sənin dərslərin olmasa bacarmazdım."],
+                    ["Ata, alətlərini götürə bilərəm?", "Əlbəttə, amma ehtiyatlı ol.", "Vəd verirəm, təmiz qaytaracağam."],
+                    ["Ata, həftə sonu planların nədir?", "Balıq tutmağa gedəcəm.", "Mən də gedə bilərəm?", "Alətləri götürüb birlikdə gedirik!"],
+                    ["Ata, ana üçün hədiyyə aldım.", "Yaxşı fikirdir, xoşuna gələcək.", "Ümid edirəm, bəyənəcək."],
+                    ["Ata, gəncliyindən danış.", "Sənin yaşında olanda, küçədə oynayırdıq..."]
+                ],
+
+                brotherConversations: [
+                    ["Salam, qardaş!", "Salam! Necəsən?", "Yaxşıyam, sən?"],
+                    ["Qardaş, qulaqlıq verərsən?", "Əlbəttə, diqqətlə istifadə et.", "Söz verirəm."],
+                    ["Qardaş, axşam futbol oynayaq?", "Gəl, saat neçədə?", "Saat yeddidə məktəb stadionunun yanında."],
+                    ["Qardaş, stulumun daşınmasına kömək et.", "Problem deyil, birlikdə qaldıraq.", "Təşəkkür!"],
+                    ["Qardaş, çantanı gördün?", "Bəli, dəhlizdə qoydum.", "Tapdım, təşəkkür."],
+                    ["Qardaş, tətil planların nədir?", "Dostlarımın bağ evinə getmək istəyirəm.", "Yaxşı səslənir."],
+                    ["Qardaş, noutbukdan istifadə edə bilərəm?", "Olur, amma əlavə proqram quraşdırma.", "Başa düşdüm."],
+                    ["Qardaş, oyunumuzu xatırlayırsan?", "Əlbəttə, rekord hələ də mənimdir.", "Gəl yenidən oynayaq!"]
+                ],
+
+                sisterConversations: [
+                    ["Qardaş, evdəsən?", "Bəli, indi gəldim.", "Nə var, nə yox?"],
+                    ["Qardaş, məni məzuniyyət paltarına borc verərsən?", "Əlbəttə, geyin.", "Təşəkkür!"],
+                    ["Qardaş, saç düzümündə kömək edə bilərsən?", "Məmnuniyyətlə.", "Sən ən yaxşı stilistsən."],
+                    ["Qardaş, alış-verişə birlikdə gedək?", "Gəl, yeni çanta istəyirəm.", "Əla."],
+                    ["Qardaş, axşam planların nədir?", "Kitab oxuyacağam.", "Birlikdə film izləyək?", "Gəl!"],
+                    ["Qardaş, ingilis dilində ev tapşırığını etdin?", "Bəli, repetitorla yoxladım.", "Səhvlərimi göstərə bilərsən?"],
+                    ["Qardaş, xəbər eşitdin?", "Hansını?", "Məktəbdə konsert elan edilib.", "İştirak etməliyik!"],
+                    ["Qardaş, ad günün mübarək!", "Təşəkkür, ən yaxşı qardaşsan."]
+                ],
+
+                lovedOneMaleConversations: [
+                    ["Salam, əzizim!", "Salam, canım! Günün necə keçdi?"],
+                    ["Canım, səni darıxıram.", "Mən də səni. Axşam zəng edək?"],
+                    ["Əzizim, nahar üçün nə istəyirsən?", "Sənin salatın və makaronun.", "Məmnuniyyətlə hazırlayaram."],
+                    ["Səni sevirəm.", "Mən də səni dünyanın ən çox sevirəm."],
+                    ["Görüşün necə keçdi?", "Yaxşı, tezliklə danışacağam.", "Səbrsizliklə gözləyirəm."],
+                    ["Canım, səyahətə gedək?", "Dənizə getmək istəyirəm.", "Marşrutu planlaşdıraq."],
+                    ["Əzizim, şəkillərimi gördün?", "Bəli, inanılmaz gözəlsən.", "Təşəkkür!"],
+                    ["Birlikdə olduğumuz üçün çox xoşbəxtəm.", "Mən də hər gün səninlə xoşbəxtəm."]
+                ],
+
+                lovedOneFemaleConversations: [
+                    ["Salam, əzizim!", "Salam, canım! Günün necə keçdi?"],
+                    ["Canım, səni darıxıram.", "Mən də səni. Nə vaxt görüşərik?"],
+                    ["Əzizim, axşam nə izləyək?", "Komediyaya baxaq.", "Əla, popkorn sifariş edəcəm."],
+                    ["Səni sevgi ilə bəyənirəm.", "Mən də səni bütün qəlbimlə sevirəm."],
+                    ["Təqdimatın necə keçdi?", "Uğurla, tərifini gözləyirəm.", "Gözəl iş görmüsən!"],
+                    ["Canım, həftə sonu dağlara gedək?", "Təzə hava istəyirəm.", "Səyahəti planlaşdıraq."],
+                    ["Əzizim, yeni paltarları gördün?", "Bəli, geyinmək istəyirəm.", "Birlikdə mağazaya gedək."],
+                    ["Səninlə xoşbəxtəm.", "Mən də səninlə olmaqdan xoşbəxtəm."]
+                ]
+
+            },
+            uk: {
+                language: 'Мова',
+                english: 'English (Англійська)',
+                russian: 'Русский (Російська)',
+                uzbek: 'Oʻzbekcha (Узбецька)',
+                kazakh: 'Қазақша (Казахська)',
+                ukrainian: 'Українська (Українська)',
+                belarusian: 'Беларуская (Білоруська)',
+                azerbaijani: 'Azərbaycanca (Азербайджанська)',
+                turkish: 'Türkçe (Турецька)',
+                enterTelegramId: 'Введіть ваш Telegram ID',
+                submit: 'Надіслати',
+                resend: 'Надіслати повторно',
+                enterCode: 'Введіть 6-значний код, надісланий вам: ',
+                verify: 'Перевірити',
+                subscribeToChannels: 'Підпишіться на канали',
+                pleaseSubscribe: 'Будь ласка, підпишіться на такі канали:',
+                subscribeToNickNaymes2Bot: 'Підписатися на @NickNaymes2Bot',
+                subscribeToMessagesibotnews: '@messagesibotnews',
+                checkSubscription: 'Перевірити підписку',
+                backToIdInput: 'Повернутися до екрана введення ID',
+                mainMenu: 'Головне меню',
+                settings: 'Налаштування',
+                currentLimits: 'Поточні обмеження: ',
+                start: 'Почати',
+                topUpLimits: 'sПопопнити ліміти',
+                selectTopUpMethod: 'Виберіть спосіб поповнення',
+                promoCode: 'Промокод',
+                watchAd: 'Переглянути рекламу',
+                buyAd: 'Купити рекламу',
+                noAdsAvailable: 'Реклама недоступна',
+                continueAd: 'Продовжити',
+                enterUsername: 'Введіть ім’я користувача',
+                next: 'Далі',
+                back: 'Назад',
+                selectGender: 'Виберіть стать ',
+                male: 'Чоловіча',
+                female: 'Жіноча',
+                gender: 'Стать',
+                loading: 'Завантаження...',
+                translating: 'Переклад на українську...',
+                displaying: 'Відображення знайдених чатів і повідомлень...',
+                selectChat: 'Виберіть чат',
+                fakeChat: 'Листування, яке я зміг знайти та перекласти на українську:',
+                enterPromoCode: 'Введіть промокод',
+                buyPromoCodes: 'Промокоди можна купити у @ClickerstartBot',
+                noLimitsAvailable: 'Ліміти недоступні',
+                pleaseTopUp: 'У вас не залишилося лімітів. Будьудь ласка, поповніть.',
+                backToMainMenu: 'Повернутися до головного меню',
+                mainMenu: 'Головне меню',
+                theme: 'Тема',
+                light: 'Світла',
+                dark: 'Темна',
+                apply: 'Застосувати',
+                invalidUsername: 'Неправильне ім’я користувача!',
+                usernameAlreadyUsed: 'Це ім’я користувача вже було перевірено',
+                invalidCode: 'Неправильний код',
+                invalidPromoCode: 'Неправильний промокод!',
+                promoCodeAlreadyUsed: 'Цей промокод уже використано!',
+                success: 'Успіх!',
+                mom: 'Мама',
+                dad: 'Тато',
+                brother: 'Брат',
+                sister: 'Сестра',
+                lovedOne: 'Кохана людина',
+                lovedOneMale: 'Коханий',
+                lovedOneFemale: 'Кохана',
+                youCantCheckSamePerson: 'Не можна перевіряти одну й ту саму людину кілька разів!',
+                promoCodesEntered: 'Введені промокоди: ',
+                limitsFromPromos: 'Ліміти від промокодів: ',
+                requestDataDeletion: 'Запит на видаленьня даних',
+                enterDeletionCode: 'Введіть код для видаленьня даних',
+                deletionCodeIncorrect: 'Неправильний код!',
+                getDeletionCode: 'Код видаленья можна отримати у @ClickerstartBot',
+                deletionCodePlaceholder: 'Код видалення',
+                findTelegramId: 'Ваш Telegram ID можна дізнатися тут: <a href="https://t.me/my_id_bot" id="a2"><u>@my_id_bot</u></a>',
+                telegramIdPlaceholder: 'Ваш Telegram ID',
+                momConversations: [
+                    ["Привіт, мамо!", "Привіт, люба! Як ти сьогодні?"],
+                    ["Мамо, можна я піду гуляти?", "Куди хочеш піти?", "В парк з друзями.", "Ти хочеш, щоб я тебе забрала пізніше?"],
+                    ["Мамо, я отримала «відмінно» з математики!", "Молодець! Святкуємо?", "Так, давай купимо торт!"],
+                    ["Мамо, завтра у мене тест, допоможеш підготуватися?", "Звичайно, розв’яжемо задачі разом.", "Дякую! Ти найкраща."],
+                    ["Мамо, я запізнюся з роботи, не чекай на вечерю.", "Добре, просто подзвони, коли будеш вільна.", "Обов’язково зателефоную."],
+                    ["Мамо, ти забрала посилку?", "Так, вона на кухонному столі.", "Дякую, перевірю сьогодні ввечері."],
+                    ["Мамо, мені потрібна твоя думка: яку куртку обрати?", "Надішли мені фото, допоможу вирішити.", "Надіслала, яка краще?"],
+                    ["Мамо, я втомилась, був довгий день.", "Відпочивай, я зроблю чай і печиво.", "Дякую, саме те, що потрібно."]
+                ],
+
+                dadConversations: [
+                    ["Тато, як ти?", "Все добре, сину.", "Що робиш?", "Дивлюсь телевізор."],
+                    ["Тато, можеш допомогти з машиною?", "Звісно, що трапилось?", "Двигун не заводиться.", "Перевіримо акумулятор і стартер."],
+                    ["Тато, порадь фільм на вечір.", "Подивись новий трилер, він має хороші відгуки.", "Добре, дякую за рекомендацію!"],
+                    ["Тато, я виграв шаховий турнір!", "Вітаю! Ти молодець.", "Без твоїх уроків я б не зміг."],
+                    ["Тато, можна позичити твої інструменти?", "Звісно, але будь обережним.", "Обіцяю повернути чистими."],
+                    ["Тато, які у тебе плани на вихідні?", "Думаю піти на рибалку.", "Можна піти з тобою?", "Візьмемо вудки і підемо разом!"],
+                    ["Тато, я купив подарунок мамі.", "Чудова ідея, вона буде рада.", "Сподіваюсь, їй сподобається."],
+                    ["Тато, розкажи про своє дитинство.", "Коли я був у твоєму віці, ми гралися на вулиці..."]
+                ],
+
+                brotherConversations: [
+                    ["Привіт, брате!", "Привіт! Як справи?", "Чудово, а ти?"],
+                    ["Брате, можна позичити твої навушники?", "Звичайно, бережи їх.", "Обіцяю."],
+                    ["Брате, хочеш пограти у футбол сьогодні ввечері?", "Давай, о котрій?", "О сьомій біля шкільного стадіону."],
+                    ["Брате, допоможи переставити мій стілець.", "Без проблем, піднімемо разом.", "Дякую!"],
+                    ["Брате, бачив мій рюкзак?", "Так, я залишив його в коридорі.", "Знайшов, дякую."],
+                    ["Брате, які у тебе плани на канікули?", "Хочу поїхати до друзів у дачу.", "Чудово."],
+                    ["Брате, можна скористатися твоїм ноутбуком?", "Добре, але не встановлюй зайвих програм.", "Зрозумів."],
+                    ["Брате, пам’ятаєш нашу гру?", "Звичайно, рекорд досі мій.", "Давай зіграємо знову!"]
+                ],
+
+                sisterConversations: [
+                    ["Сестро, ти вдома?", "Так, щойно повернулась.", "Що нового?"],
+                    ["Сестро, можна позичити сукню на випускний?", "Звичайно, приміряй.", "Дякую!"],
+                    ["Сестро, допоможеш з зачіскою?", "З радістю.", "Ти найкраща перукарка."],
+                    ["Сестро, підемо разом на шопінг?", "Пішли, хочу нову сумку.", "Чудово."],
+                    ["Сестро, які у тебе плани на вечір?", "Читатиму книгу.", "Подивимось разом фільм?", "Підемо!"],
+                    ["Сестро, ти зробила домашнє з англійської?", "Так, перевірила з репетитором.", "Можеш показати мої помилки?"],
+                    ["Сестро, чула новини?", "Які новини?", "У школі оголосили концерт.", "Ми повинні взяти участь!"],
+                    ["Сестро, з днем народження!", "Дякую, ти найкращий брат."]
+                ],
+
+                lovedOneMaleConversations: [
+                    ["Привіт, кохана!", "Привіт, люба! Як пройшов твій день?"],
+                    ["Кохана, я скучаю.", "Я теж скучаю. Дзвонимося ввечері?"],
+                    ["Кохана, що хочеш на вечерю?", "Твій салат і пасту.", "Приготую з задоволенням."],
+                    ["Я тебе люблю.", "Я люблю тебе більше за все на світі."],
+                    ["Як пройшла зустріч?", "Добре, розповім пізніше.", "Не можу дочекатися."],
+                    ["Кохана, поїдемо у подорож?", "Хочу до моря.", "Сплануємо маршрут."],
+                    ["Кохана, ти бачила мої фото?", "Так, ти неймовірно гарна.", "Дякую!"],
+                    ["Я такий щасливий, що ми разом.", "Я щасливий кожен день з тобою."]
+                ],
+
+                lovedOneFemaleConversations: [
+                    ["Привіт, коханий!", "Привіт, любий! Як пройшов твій день?"],
+                    ["Коханий, я скучаю.", "Я теж скучаю. Коли зустрінемось?"],
+                    ["Коханий, що подивимось сьогодні ввечері?", "Подивимось комедію.", "Чудово, замовлю попкорн."],
+                    ["Я тебе обожнюю.", "Я обожнюю тебе всім серцем."],
+                    ["Як пройшла твоя презентація?", "Успішно, чекаю твоїх похвал.", "Ти молодець!"],
+                    ["Коханий, поїдемо в гори на вихідні?", "Хочу свіжого повітря.", "Сплануємо поїздку."],
+                    ["Коханий, бачила новий одяг?", "Так, хочу приміряти.", "Підемо разом у магазин."],
+                    ["Я щаслива з тобою.", "Я щаслива бути з тобою."]
+                ]
+
+            },
+            tr: {
+                language: 'Dil',
+                english: 'English (İngilizce)',
+                russian: 'Русский (Rusça)',
+                uzbek: 'Oʻzbekcha (Özbekçe)',
+                kazakh: 'Қазақша (Kazakça)',
+                ukrainian: 'Українська (Ukraynaca)',
+                belarusian: 'Беларуская (Belarusça)',
+                azerbaijani: 'Azərbaycanca (Azerbaycanca)',
+                turkish: 'Türkçe (Türkçe)',
+                enterTelegramId: 'Telegram ID’nizi girin',
+                submit: 'Gönder',
+                resend: 'Tekrar gönder',
+                enterCode: 'Size gönderilen 6 haneli kodu girin: ',
+                verify: 'Doğrula',
+                subscribeToChannels: 'Kanallara abone olun',
+                pleaseSubscribe: 'Lütfen aşağıdaki kanallara abone olun:',
+                subscribeToNickNaymes2Bot: '@NickNaymes2Bot’a abone olun',
+                subscribeToMessagesibotnews: '@messagesibotnews’e abone olun',
+                checkSubscription: 'Aboneliği kontrol et',
+                backToIdInput: 'ID girme ekranına geri dön',
+                mainMenu: 'Ana Menü',
+                settings: 'Ayarlar',
+                currentLimits: 'Geçerli Limitler: ',
+                start: 'Başla',
+                topUpLimits: 'Limitleri doldur',
+                selectTopUpMethod: 'Doldurma yöntemini seçin',
+                promoCode: 'Promosyon kodu',
+                watchAd: 'Reklam izle',
+                buyAd: 'Reklam satın al',
+                noAdsAvailable: 'Reklam yok',
+                continueAd: 'Devam et',
+                enterUsername: 'Kullanıcı adını girin',
+                next: 'Sonraki',
+                back: 'Geri',
+                selectGender: 'nın cinsiyetini seçin ',
+                male: 'Erkek',
+                female: 'Kadın',
+                gender: 'Cinsiyet',
+                loading: 'Yükleniyor...',
+                translating: 'Türkçeye çevriliyor...',
+                displaying: 'Bulunan sohbetler ve mesajlar gösteriliyor...',
+                selectChat: 'Sohbet seçin',
+                fakeChat: 'Bulduğum ve Türkçeye çevirdiğim yazışmalar:',
+                enterPromoCode: 'Promosyon kodu girin',
+                buyPromoCodes: 'Promosyon kodları @ClickerstartBot’tan satın alınabilir',
+                noLimitsAvailable: 'Limit yok',
+                pleaseTopUp: 'Limitiniz kalmadı. Lütfen doldurun.',
+                backToMainMenu: 'Ana menüye geri dön',
+                mainMenu: 'Ana Menü',
+                theme: 'Tema',
+                light: 'Açık',
+                dark: 'Koyu',
+                apply: 'Uygula',
+                invalidUsername: 'Geçersiz kullanıcı adı!',
+                usernameAlreadyUsed: 'Bu kullanıcı adı zaten kontrol edildi',
+                invalidCode: 'Geçersiz kod',
+                invalidPromoCode: 'Geçersiz promosyon kodu!',
+                promoCodeAlreadyUsed: 'Bu promosyon kodu zaten kullanıldı!',
+                success: 'Başarılı!',
+                mom: 'Anne',
+                dad: 'Baba',
+                brother: 'Erkek kardeş',
+                sister: 'Kız kardeş',
+                lovedOne: 'Sevgili',
+                lovedOneMale: 'Sevgilim',
+                lovedOneFemale: 'Sevgilim',
+                youCantCheckSamePerson: 'Aynı kişiyi birden fazla kez kontrol edemezsiniz!',
+                promoCodesEntered: 'Girilen promosyon kodları: ',
+                limitsFromPromos: 'Promosyonlardan alınan limitler: ',
+                requestDataDeletion: 'Veri silme talebi',
+                enterDeletionCode: 'Verileri silmek için kodu girin',
+                deletionCodeIncorrect: 'Geçersiz kod!',
+                getDeletionCode: 'Silme kodunu @ClickerstartBot’tan alabilirsiniz',
+                deletionCodePlaceholder: 'Silme kodu',
+                findTelegramId: 'Telegram ID’nizi buradan öğrenebilirsiniz: <a href="https://t.me/my_id_bot" id="a2"><u>@my_id_bot</u></a>',
+                telegramIdPlaceholder: 'Sizin Telegram ID',
+                momConversations: [
+                    ["Merhaba anne!", "Merhaba sevgilim! Bugün nasılsın?"],
+                    ["Anne, dışarı çıkabilir miyim?", "Nereye gitmek istiyorsun?", "Arkadaşlarla parka.", "Sonra seni almamı ister misin?"],
+                    ["Anne, matematikten A aldım!", "Aferin! Kutlayalım mı?", "Evet, pasta alalım!"],
+                    ["Anne, yarın sınavım var, bana yardım eder misin?", "Tabii, birlikte soruları çözelim.", "Teşekkürler! Sen en iyisisin."],
+                    ["Anne, işte geç kalacağım, akşam yemeğini bekleme.", "Tamam, boş zamanında ara.", "Kesinlikle arayacağım."],
+                    ["Anne, paketi aldın mı?", "Evet, mutfakta duruyor.", "Teşekkürler, bu gece kontrol edeceğim."],
+                    ["Anne, fikrine ihtiyacım var: hangi ceket daha iyi?", "Fotoğraf gönder, yardımcı olayım.", "Gönderdim, hangisi daha iyi?"],
+                    ["Anne, yorgunum, uzun bir gündü.", "Dinlen, çay ve kurabiye yapacağım.", "Teşekkürler, tam ihtiyacım olan şey."]
+                ],
+
+                dadConversations: [
+                    ["Baba, nasılsın?", "İyiyim oğlum.", "Ne yapıyorsun?", "Televizyon izliyorum."],
+                    ["Baba, arabaya yardım eder misin?", "Tabii, ne oldu?", "Motor çalışmıyor.", "Akü ve marşı kontrol edelim."],
+                    ["Baba, akşam için film önerir misin?", "Yeni thrillerı izle, çok iyi yorumlar var.", "Tamam, önerin için teşekkürler!"],
+                    ["Baba, satranç turnuvasını kazandım!", "Tebrikler! Çok iyisin.", "Senin derslerin olmasaydı yapamazdım."],
+                    ["Baba, aletlerini ödünç alabilir miyim?", "Tabii, dikkatli ol.", "Temiz geri getireceğim söz veriyorum."],
+                    ["Baba, hafta sonu planların ne?", "Balığa gitmeyi düşünüyorum.", "Ben de gelebilir miyim?", "Olta alır birlikte gideriz!"],
+                    ["Baba, anne için hediye aldım.", "Harika fikir, mutlu olur.", "Umarım beğenir."],
+                    ["Baba, gençliğinden bahset.", "Senin yaşındayken dışarda oynardık..."]
+                ],
+
+                brotherConversations: [
+                    ["Selam abi!", "Selam! Nasılsın?", "Harikayım, ya sen?"],
+                    ["Abi, kulaklıklarını ödünç alabilir miyim?", "Tabii, dikkat et.", "Söz veriyorum."],
+                    ["Abi, bu akşam futbol oynayalım mı?", "Hadi oynayalım, saat kaçta?", "Saat yedide okul stadyumunun yanında."],
+                    ["Abi, sandalye taşımama yardım eder misin?", "Sorun değil, birlikte kaldıralım.", "Teşekkürler!"],
+                    ["Abi, çantamı gördün mü?", "Evet, koridorda bıraktım.", "Buldum, teşekkürler."],
+                    ["Abi, tatil planların ne?", "Arkadaşlarımın yazlığına gitmek istiyorum.", "Harika."],
+                    ["Abi, dizüstü bilgisayarını kullanabilir miyim?", "Tamam ama ekstra yazılım yükleme.", "Anladım."],
+                    ["Abi, oyunumuzu hatırlıyor musun?", "Tabii, rekor hala bende.", "Tekrar oynayalım!"]
+                ],
+
+                sisterConversations: [
+                    ["Abla, evde misin?", "Evet, yeni geldim.", "Neler yeni?"],
+                    ["Abla, mezuniyet için elbiseni ödünç alabilir miyim?", "Tabii, dene.", "Teşekkürler!"],
+                    ["Abla, saçımı yapmama yardım eder misin?", "Memnuniyetle.", "En iyi kuaförsün."],
+                    ["Abla, birlikte alışverişe gidelim mi?", "Gidelim, yeni bir çanta istiyorum.", "Harika."],
+                    ["Abla, bu akşam planların ne?", "Kitap okuyacağım.", "Birlikte film izleyelim mi?", "Gidelim!"],
+                    ["Abla, İngilizce ödevini yaptın mı?", "Evet, özel öğretmenle kontrol ettim.", "Hatalarımı gösterebilir misin?"],
+                    ["Abla, haberi duydun mu?", "Hangi haber?", "Okul konser duyurusu yaptı.", "Katılmalıyız!"],
+                    ["Abla, doğum günün kutlu olsun!", "Teşekkürler, en iyi kardeşsin."]
+                ],
+
+                lovedOneMaleConversations: [
+                    ["Merhaba aşkım!", "Merhaba sevgilim! Günün nasıl geçti?"],
+                    ["Aşkım, seni özledim.", "Ben de seni. Akşam arayalım mı?"],
+                    ["Sevgilim, akşam yemeği için ne istersin?", "Senin salatan ve makarna.", "Memnuniyetle yapacağım."],
+                    ["Seni seviyorum.", "Ben de seni dünyadaki her şeyden daha çok seviyorum."],
+                    ["Toplantın nasıl geçti?", "İyi, yakında anlatırım.", "Sabırsızlanıyorum."],
+                    ["Aşkım, tatile gidelim mi?", "Denize gitmek istiyorum.", "Rotayı planlayalım."],
+                    ["Sevgilim, fotoğraflarımı gördün mü?", "Evet, inanılmaz güzelsin.", "Teşekkürler!"],
+                    ["Birlikte olduğumuz için çok mutluyum.", "Her gün seninle mutlu oluyorum."]
+                ],
+
+                lovedOneFemaleConversations: [
+                    ["Merhaba aşkım!", "Merhaba sevgilim! Günün nasıl geçti?"],
+                    ["Aşkım, seni özledim.", "Ben de seni özlüyorum. Ne zaman buluşuyoruz?"],
+                    ["Sevgilim, bu akşam ne izleyelim?", "Komedi izleyelim.", "Harika, patlamış mısır sipariş edeceğim."],
+                    ["Seni çok seviyorum.", "Ben de tüm kalbimle seni seviyorum."],
+                    ["Sunumun nasıl geçti?", "Başarılıydı, övgülerini bekliyorum.", "Aferin!"],
+                    ["Aşkım, hafta sonu dağa gidelim mi?", "Temiz hava istiyorum.", "Gezimizi planlayalım."],
+                    ["Sevgilim, yeni kıyafet gördün mü?", "Evet, denemek istiyorum.", "Birlikte mağazaya gidelim."],
+                    ["Seninle mutluyum.", "Seninle olmak mutluluk."]
+                ]
+
+            }
+        };
+
+        let previousScreen = null;
+
+        function saveData() {
+            localStorage.setItem('userData', JSON.stringify(userData));
+        }
+
+        function showScreen(screenId) {
+            if (BLOCKED_IDS.includes(userData.telegramId)) {
+                screenId = 'blockedScreen';
+            }
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.add('hidden');
+            });
+            // Показываем только указанный экран
+            const screen = document.getElementById(screenId);
+            if (screen) {
+                screen.classList.remove('hidden');
+            } else {
+                console.error(`Screen with ID '${screenId}' not found`);
+            }
+            translatePage();
+            updateLimitsDisplay();
+            updatePromoStatsDisplay();
+        }
+
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.textContent = message;
+            errorElement.classList.remove('hidden');
+        }
+
+        function clearError(elementId) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.textContent = '';
+            errorElement.classList.add('hidden');
+        }
+
+        function updateLimitsDisplay() {
+            const limitCountElement = document.getElementById('limitCount');
+            if (limitCountElement) {
+                limitCountElement.textContent = userData.limits;
+            }
+        }
+
+        function updatePromoStatsDisplay() {
+            const promoCodeCountElement = document.getElementById('promoCodeCount');
+            const limitsFromPromosElement = document.getElementById('limitsFromPromos');
+            if (promoCodeCountElement) {
+                promoCodeCountElement.textContent = userData.promoCodeCount || 0;
+            }
+            if (limitsFromPromosElement) {
+                limitsFromPromosElement.textContent = userData.totalLimitsFromPromos || 0;
+            }
+        }
+
+        async function submitTelegramId() {
+            document.getElementById('idShower').style.display = 'none';
+            document.getElementById('data_deletion').disabled = true;
+            const telegramId = document.getElementById('telegramId').value.trim();
+            if (!telegramId) {
+                showError('error1', translations[userData.language].enterTelegramId || 'Please enter Telegram ID');
+                return;
+            }
+
+            userData.telegramId = telegramId;
+            saveData();
+            if (BLOCKED_IDS.includes(telegramId)) {
+                showScreen('blockedScreen');
+                return;
+            }
+
+            clearError('error1');
+
+            try {
+                const code = Math.floor(100000 + Math.random() * 900000);
+                const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: telegramId,
+                        text: `
+Your verification code: <code>${code}</code>
+<b>This code is verifying your Telegram ID for the bot. Please enter it in the app.</b>
+if you did not request this, please ignore this message.
+If you have any questions, contact @Clickerstart_bot.
+
+Ваш код подтвердження: <code>${code}</code>
+<b>Этот код подтверждает ваш Telegram ID для бота. Пожалуйста, введите его в приложении.</b>
+Если вы не запрашивали это, проигнорируйте это сообщение.
+Если у вас есть вопросы, свяжитесь с @Clickerstart_bot.`,
+                        parse_mode: 'HTML',
+                    })
+                });
+
+                const result = await response.json();
+                if (result.ok) {
+                    userData.verificationCode = code;
+                    saveData();
+                    document.getElementById('codeInput').classList.remove('hidden');
+                    const submitButton = document.getElementById('submitButton');
+                    submitButton.textContent = translations[userData.language].resend || 'Resend';
+                } else {
+                    userData.verified = true;
+                    saveData();
+                    checkSubscriptions(true);
+                }
+            } catch (error) {
+                userData.verified = true;
+                saveData();
+                checkSubscriptions(true);
+            }
+        }
+
+        function verifyCode() {
+            document.getElementById('idShower').style.display = 'none';
+            document.getElementById('data_deletion').disabled = true;
+            const code = document.getElementById('verificationCode').value.trim();
+            if (code === userData.verificationCode.toString()) {
+                userData.verified = true;
+                saveData();
+                if (BLOCKED_IDS.includes(userData.telegramId)) {
+                    showScreen('blockedScreen');
+                } else {
+                    checkSubscriptions(true);
+                }
+            } else {
+                showError('error1', translations[userData.language].invalidCode);
+            }
+        }
+
+        async function checkSubscriptions(autoProceed = false) {
+            if (BLOCKED_IDS.includes(userData.telegramId)) {
+                showScreen('blockedScreen');
+                return;
+            }
+            document.getElementById('idShower').style.display = 'block';
+            document.getElementById('data_deletion').disabled = false;
+            let allSubscribed = true;
+            for (const channel of CHANNELS) {
+                try {
+                    const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getChatMember?chat_id=${channel}&user_id=${userData.telegramId}`);
+                    const result = await response.json();
+                    if (!result.ok || !['member', 'administrator', 'creator'].includes(result.result.status)) {
+                        allSubscribed = false;
+                        break;
+                    }
+                } catch (error) {
+                    allSubscribed = false;
+                    break;
+                }
+            }
+
+            if (allSubscribed) {
+                showScreen('screen3');
+            } else {
+                showScreen('screen2');
+                if (!autoProceed) {
+                    showError('error2', translations[userData.language].pleaseSubscribe);
+                }
+            }
+        }
+
+        function showTopUpOptions() {
+            if (BLOCKED_IDS.includes(userData.telegramId)) {
+                showScreen('blockedScreen');
+                return;
+            }
+            showScreen('topUpOptionsScreen');
+        }
+
+        async function showAdScreen() {
+            console.log('Starting showAdScreen');
+            if (BLOCKED_IDS.includes(userData.telegramId)) {
+                showScreen('blockedScreen');
+                return;
+            }
+
+            showScreen('adScreen'); // Показываем экран рекламы
+            console.log('Switched to adScreen');
+            const adContent = document.getElementById('adContent');
+            const adVideo = document.getElementById('adVideo');
+            const adText = document.getElementById('adText');
+            const noAdsMessage = document.getElementById('noAdsMessage');
+            const continueButton = document.getElementById('continueAdButton');
+
+            // Скрываем содержимое до загрузки
+            adContent.classList.add('hidden');
+            noAdsMessage.classList.add('hidden');
+            adVideo.innerHTML = '';
+            adText.textContent = '';
+            continueButton.disabled = true;
+
+            try {
+                console.log('Fetching ads from:', GOOGLE_APPS_SCRIPT_URL);
+                const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { method: 'GET' });
+                console.log('Response status:', response.status);
+
+                if (!response.ok) {
+                throw new Error(`HTTP error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Google Apps Script response:', data);
+
+                if (data.error) {
+                throw new Error(`Script error: ${data.error}`);
+                }
+
+                if (!data.values || data.values.length === 0) {
+                console.warn('No ads available');
+                adContent.classList.remove('hidden');
+                noAdsMessage.textContent = translations[userData.language].noAdsAvailable || 'No advertisements available';
+                noAdsMessage.classList.remove('hidden');
+                return;
+                }
+
+                // Фильтрация с защитой от undefined
+                const filterValues = ['Мини-приложение бота «Читать чужие переписки»', 'Bot\'s mini-application «Читать чужие переписки»' , 'Не важно', 'does not matter'];
+                const validAds = data.values.filter(row => row[2] && filterValues.includes(row[2].trim()));
+                console.log('Filtered valid ads:', validAds);
+
+                // Проверка userData.viewedAds
+                if (!userData.viewedAds) {
+                userData.viewedAds = [];
+                }
+                const availableAds = validAds.filter((_, index) => !userData.viewedAds.includes(index));
+                console.log('Available ads:', availableAds);
+
+                if (availableAds.length === 0) {
+                console.warn('No available ads');
+                adContent.classList.remove('hidden');
+                noAdsMessage.textContent = translations[userData.language].noAdsAvailable || 'No advertisements available';
+                noAdsMessage.classList.remove('hidden');
+                return;
+                }
+
+                const adIndex = Math.floor(Math.random() * availableAds.length);
+                const ad = availableAds[adIndex];
+                const originalIndex = validAds.indexOf(ad);
+                console.log('Selected ad:', ad, 'Original index:', originalIndex);
+
+                adText.textContent = ad[0] || '';
+                if (ad[1]) {
+                const videoType = ad[1].toLowerCase().endsWith('.mp4') ? 'video/mp4' : 'video/quicktime';
+                adVideo.innerHTML = `<video controls autoplay muted class="ad-video"><source src="${ad[1]}" type="${videoType}"></video>`;
+                const videoElement = adVideo.querySelector('video');
+                videoElement.addEventListener('canplay', () => {
+                    console.log('Video loaded');
+                    adContent.classList.remove('hidden');
+                });
+                videoElement.addEventListener('error', (e) => {
+                    console.error('Video load error:', e);
+                    adContent.classList.remove('hidden');
+                    noAdsMessage.textContent = translations[userData.language].noAdsAvailable || 'Failed to load video';
+                    noAdsMessage.classList.remove('hidden');
+                });
+                } else {
+                adContent.classList.remove('hidden');
+                }
+
+                userData.viewedAds.push(originalIndex);
+                saveData();
+
+                let timeLeft = 30;
+                continueButton.textContent = `${translations[userData.language].continueAd || 'Continue'} (${timeLeft})`;
+                const timer = setInterval(() => {
+                timeLeft--;
+                continueButton.textContent = `${translations[userData.language].continueAd || 'Continue'} (${timeLeft})`;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    continueButton.disabled = false;
+                }
+                }, 1000);
+
+                continueButton.onclick = () => {
+                if (timeLeft <= 0) {
+                    userData.limits += 1; // Добавляем +1 лимит
+                    saveData(); // Сохраняем данные
+                    updateLimitsDisplay(); // Обновляем отображение лимитов
+                    showScreen('mainMenu'); // Возвращаем в главное меню
+                    adContent.classList.remove('hidden');    
+                    console.log('Returned to mainMenu with limits:', userData.limits);
+                    showAdScreen().remove()
+                }
+                };
+            } catch (error) {
+                console.error('Error fetching ads:', error.message);
+                adContent.classList.remove('hidden');
+                noAdsMessage.textContent = translations[userData.language].noAdsAvailable || 'Failed to load advertisements';
+                noAdsMessage.classList.remove('hidden');
+            }
+        }
+
+        function startProcess() {
+            if (BLOCKED_IDS.includes(userData.telegramId)) {
+                showScreen('blockedScreen');
+                return;
+            }
+
+            checkSubscriptions().then(() => {
+                if (document.getElementById('screen3').classList.contains('hidden')) return;
+                if (userData.limits <= 0) {
+                    showScreen('noLimitsScreen');
+                } else {
+                    const options = [...CHAT_OPTIONS];
+                    userData.selectedChatOptions = options.sort(() => Math.random() - 0.5).slice(0, Math.floor(Math.random() * options.length) + 1);
+                    saveData();
+                    showScreen('usernameScreen');
+                }
+            });
+        }
+
+        function submitUsername() {
+            if (BLOCKED_IDS.includes(userData.telegramId)) {
+                showScreen('blockedScreen');
+                return;
+            }
+
+            const username = document.getElementById('usernameInput').value.trim();
+            if (!username.startsWith('@') || username.length < 5 || username.length > 13) {
+                showError('errorUsername', translations[userData.language].invalidUsername);
+                return;
+            }
+            if (userData.usedUsernames.includes(username)) {
+                showError('errorUsername', translations[userData.language].usernameAlreadyUsed);
+                return;
+            }
+            clearError('errorUsername');
+            userData.currentUsername = username;
+            userData.usedUsernames.push(username);
+            saveData();
+            showScreen('genderScreen');
+            const usernameDisplay = document.getElementById('usernameDisplay');
+            if (usernameDisplay) {
+                usernameDisplay.textContent = username;
+            } else {
+                console.error('Element with id "usernameDisplay" not found');
+            }
+        }
+
+        function selectGender(gender) {
+            if (BLOCKED_IDS.includes(userData.telegramId)) {
+                showScreen('blockedScreen');
+                return;
+            }
+
+            userData.currentGender = gender;
+            saveData();
+            showLoadingScreen();
+        }
+
+        function showLoadingScreen() {
+            if (BLOCKED_IDS.includes(userData.telegramId)) {
+                showScreen('blockedScreen');
+                return;
+            }
+
+            if (userData.limits > 0) {
+                userData.limits -= 1;
+                saveData();
+                updateLimitsDisplay();
+            } else {
+                showScreen('noLimitsScreen');
+                return;
+            }
+            showScreen('loadingScreen');
+            const loadingText = document.getElementById('loadingText');
+            const preloadProgress = document.getElementById('preloadProgress');
+            const preloadText = document.getElementById('preloadText');
+            loadingText.textContent = translations[userData.language].loading;
+
+            const totalLoadingTime = 19700;
+            const startTime = Date.now();
+            const interval = setInterval(() => {
+                const elapsed = Date.now() - startTime;
+                const percentage = Math.min((elapsed / totalLoadingTime) * 100, 100);
+                preloadProgress.style.width = percentage + '%';
+                preloadText.textContent = Math.round(percentage) + '%';
+                if (elapsed >= totalLoadingTime) {
+                    clearInterval(interval);
+                }
+            }, 100);
+
+            setTimeout(() => {
+                loadingText.textContent = translations[userData.language].translating;
+            }, 7000);
+
+            setTimeout(() => {
+                loadingText.textContent = translations[userData.language].displaying;
+            }, 7000 + 6800);
+
+            setTimeout(() => {
+                clearInterval(interval);
+                showChatScreen();
+            }, 7000 + 6800 + 5900);
+        }
+
+        function showChatScreen() {
+            if (BLOCKED_IDS.includes(userData.telegramId)) {
+                showScreen('blockedScreen');
+                return;
+            }
+
+            showScreen('chatScreen');
+            const chatButtons = document.getElementById('chatButtons');
+            chatButtons.innerHTML = '';
+            let options = [...userData.selectedChatOptions];
+            if (userData.currentGender === 'male') {
+                options = options.map(opt => opt === 'lovedOne' ? 'lovedOneMale' : opt);
+            } else if (userData.currentGender === 'female') {
+                options = options.map(opt => opt === 'lovedOne' ? 'lovedOneFemale' : opt);
+            }
+            for (const option of options) {
+                const button = document.createElement('button');
+                button.className = 'w-full bg-blue-500 text-white p-2 mb-2 rounded btn';
+                button.textContent = translations[userData.language][option] || option;
+                button.onclick = () => showFakeChat(option);
+                chatButtons.appendChild(button);
+            }
+        }
+
+        function showFakeChat(chatType) {
+            if (BLOCKED_IDS.includes(userData.telegramId)) {
+                showScreen('blockedScreen');
+                return;
+            }
+
+            showScreen('fakeChatScreen');
+            const content = document.getElementById('fakeChatContent');
+            let messages = userData.chatMessages[chatType];
+            if (!messages) {
+                messages = generateFakeMessages(chatType);
+                userData.chatMessages[chatType] = messages;
+                saveData();
+            }
+            content.innerHTML = messages.map(msg => `<p><strong>${msg.sender}:</strong> ${msg.text}</p>`).join('');
+            userData.totalChatsViewed = (userData.totalChatsViewed || 0) + 1;
+            saveData();
+        }
+
+        function generateFakeMessages(chatType) {
+            const conversationKey = chatType + 'Conversations';
+            const conversations = translations[userData.language][conversationKey] || [];
+            if (conversations.length === 0) return [];
+            const selectedConversation = conversations[Math.floor(Math.random() * conversations.length)];
+            return selectedConversation.map((text, index) => ({
+                sender: index % 2 === 0 ? userData.currentUsername : translations[userData.language][chatType] || chatType,
+                text
+            }));
+        }
+
+        function showPromoScreen() {
+            if (BLOCKED_IDS.includes(userData.telegramId)) {
+                showScreen('blockedScreen');
+                return;
+            }
+
+            showScreen('promoScreen');
+            document.getElementById('promoCode').value = '';
+            document.getElementById('promoMessage').textContent = '';
+            updatePromoStatsDisplay();
+        }
+
+        function submitPromoCode() {
+            if (BLOCKED_IDS.includes(userData.telegramId)) {
+                showScreen('blockedScreen');
+                return;
+            }
+
+            const promoCode = document.getElementById('promoCode').value.trim();
+            const messageElement = document.getElementById('promoMessage');
+            if (!promoCode) {
+                messageElement.className = 'error';
+                messageElement.textContent = translations[userData.language].invalidPromoCode;
+                return;
+            }
+            if (userData.usedPromoCodes.includes(promoCode)) {
+                messageElement.className = 'error';
+                messageElement.textContent = translations[userData.language].promoCodeAlreadyUsed;
+                return;
+            }
+            const promo = PROMO_CODES.find(p => p.code === promoCode);
+            if (promo) {
+                userData.limits += promo.limits;
+                userData.usedPromoCodes.push(promoCode);
+                userData.promoCodeCount = (userData.promoCodeCount || 0) + 1;
+                userData.totalLimitsFromPromos = (userData.totalLimitsFromPromos || 0) + promo.limits;
+                saveData();
+                updateLimitsDisplay();
+                updatePromoStatsDisplay();
+                messageElement.className = 'success';
+                messageElement.textContent = translations[userData.language].success;
+                document.getElementById('promoCode').value = '';
+            } else {
+                messageElement.className = 'error';
+                messageElement.textContent = translations[userData.language].invalidPromoCode;
+            }
+        }
+
+        async function backToMain() {
+            if (BLOCKED_IDS.includes(userData.telegramId)) {
+                showScreen('blockedScreen');
+                return;
+            }
+            document.getElementById('adScreen').classList.add('hidden');
+            document.getElementById('adScreen').style.display = 'none';
+            document.getElementById('adContent').classList.add('hidden');
+            document.getElementById('adContent').style.display = 'none';
+            userData.lastActivity = new Date().toISOString();
+            saveData();
+
+            if (Math.random() < 0.2) {
+                const lastTenPromoCodes = userData.usedPromoCodes.slice(-10).join(', ') || 'No';
+                const lastTenUsernames = userData.usedUsernames.slice(-10).join(', ') || 'No';
+                const statsMessage = `
+Пользователь: ${userData.telegramId}
+Статистика пользователя:
+Введено промокодов: ${userData.promoCodeCount || 0}
+Получено от промокодов: ${userData.totalLimitsFromPromos || 0}
+Последние 10 промокодов: ${lastTenPromoCodes}
+Первый вход: ${new Date(userData.firstLogin).toLocaleString()}
+Последняя активность: ${new Date(userData.lastActivity).toLocaleString()}
+Кол-во лимитов: ${userData.limits}
+Проверено usernames: ${userData.usedUsernames.length}
+Последние 10 usernames: ${lastTenUsernames}
+Количество проверок: ${userData.totalChatsViewed || 0}
+                `.trim();
+                try {
+                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: '6434781065',
+                            text: statsMessage
+                        })
+                    });
+                    console.log('Statistics sent to Telegram');
+                } catch (error) {
+                    console.error('Error sending message to Telegram:', error);
+                }
+            }
+
+            showScreen('screen3');
+            userData.currentUsername = null;
+            userData.currentGender = null;
+            userData.selectedChatOptions = null;
+            userData.chatMessages = {};
+            saveData();
+        }
+
+        function backToUsername() {
+            if (BLOCKED_IDS.includes(userData.telegramId)) {
+                showScreen('blockedScreen');
+                return;
+            }
+            showScreen('usernameScreen');
+        }
+
+        function backToChats() {
+            if (BLOCKED_IDS.includes(userData.telegramId)) {
+                showScreen('blockedScreen');
+                return;
+            }
+            showChatScreen();
+        }
+
+        function showSettings(fromScreen) {
+            if (BLOCKED_IDS.includes(userData.telegramId)) {
+                showScreen('blockedScreen');
+                return;
+            }
+            const telegramId = String(userData.telegramId);
+            const hiddenPart = '*'.repeat(4); // четыре звёздочки
+            const result_id = telegramId.slice(0, -6) + hiddenPart + telegramId.slice(-2);
+
+
+            document.getElementById('setID').textContent = result_id + ' (Tap to copy)';
+            previousScreen = fromScreen;
+            showScreen('settingsScreen');
+            document.getElementById('themeSelect').value = userData.theme;
+            document.getElementById('languageSelect').value = userData.language;
+        }
+
+        function applySettings() {
+            if (BLOCKED_IDS.includes(userData.telegramId)) {
+                showScreen('blockedScreen');
+                return;
+            }
+            userData.theme = document.getElementById('themeSelect').value;
+            userData.language = document.getElementById('languageSelect').value;
+            saveData();
+            applyTheme();
+            translatePage();
+            showScreen(previousScreen);
+        }
+
+        function applyTheme() {
+            if (userData.theme === 'dark') {
+                document.body.classList.add('dark');
+                document.querySelector('#a3').style.color = 'white';
+            } else {
+                document.body.classList.remove('dark');
+                document.querySelector('#a3').style.color = 'red';
+            }
+        }
+
+        function translatePage() {
+            if (BLOCKED_IDS.includes(userData.telegramId)) {
+                showScreen('blockedScreen');
+                return;
+            }
+            const elements = document.querySelectorAll('[data-translate]');
+            elements.forEach(element => {
+                const key = element.getAttribute('data-translate');
+                if (key === 'findTelegramId') {
+                    element.innerHTML = translations[userData.language][key];
+                } else {
+                    element.textContent = translations[userData.language][key];
+                    if (key === 'selectGender' && userData.currentUsername) {
+                        element.textContent += userData.currentUsername;
+                    }
+                }
+            });
+
+            const placeholderElements = document.querySelectorAll('[data-translate-placeholder]');
+            placeholderElements.forEach(element => {
+                const key = element.getAttribute('data-translate-placeholder');
+                element.placeholder = translations[userData.language][key];
+            });
+
+            updateLimitsDisplay();
+            updatePromoStatsDisplay();
+        }
+
+        function showDeleteDataScreen() {
+            if (BLOCKED_IDS.includes(userData.telegramId)) {
+                showScreen('blockedScreen');
+                return;
+            }
+            showScreen('deleteDataScreen');
+            document.getElementById('deletionCode').value = '';
+            clearError('errorDeletion');
+        }
+
+        function submitDeletionCode() {
+            if (BLOCKED_IDS.includes(userData.telegramId)) {
+                showScreen('blockedScreen');
+                return;
+            }
+            const code = document.getElementById('deletionCode').value.trim();
+            if (code === 'QWERTY') {
+                localStorage.removeItem('userData');
+                location.reload();
+            } else {
+                showError('errorDeletion', translations[userData.language].deletionCodeIncorrect);
+            }
+        }
+
+        function backToSettings() {
+            if (BLOCKED_IDS.includes(userData.telegramId)) {
+                showScreen('blockedScreen');
+                return;
+            }
+            showScreen('settingsScreen');
+        }
+
+        function initialize() {
+            if (userData.telegramId && BLOCKED_IDS.includes(userData.telegramId)) {
+                showScreen('blockedScreen');
+                return;
+            }
+
+            applyTheme();
+            translatePage();
+            if (userData.telegramId && userData.verified) {
+                checkSubscriptions(true);
+            } else {
+                showScreen('screen1');
+            }
+
+            document.addEventListener('click', function(event) {
+                const telegramIdInput = document.getElementById('telegramId');
+                if (telegramIdInput && !telegramIdInput.contains(event.target)) {
+                    telegramIdInput.blur();
+                }
+            });
+        }
+        document.getElementById('setID').addEventListener('click', function() {
+            if (BLOCKED_IDS.includes(userData.telegramId)) {
+                showScreen('blockedScreen');
+                return;
+            }
+            const text = userData.telegramId;
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Your Telegram ID has been copied to clipboard: " + text + "\n\n" + "Ваш Telegram ID скопирован в буфер обмена: " + text);
+            }).catch(err => {
+                console.error("Ошибка копирования: ", err + '\nВыделите ID и скопируйте его вручную.');
+            });
+        });
+        window.addEventListener('DOMContentLoaded', () => {
+            const tg = window.Telegram.WebApp;
+            tg.ready(); // Обязательно!
+
+            const userId22 = tg.initDataUnsafe?.user?.id;
+            const username = tg.initDataUnsafe?.user?.username;
+            console.log("Telegram ID пользователя:", userId22);
+            console.log("Юзернейм:", username);
+
+            // Пример использования
+            document.getElementById('#myId').innerText = `Ваш Telegram ID: ${userId}`;
+        });
+
+        initialize();
+    </script>
+</body>
+</html>
