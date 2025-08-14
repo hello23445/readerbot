@@ -2179,7 +2179,6 @@ If you have any questions, contact @Clickerstart_bot.
                 showScreen('blockedScreen');
                 return;
             }
-            const yes = true;
             showScreen('deleteDataScreen');
             document.getElementById('deletionCode').value = '';
             clearError('errorDeletion');
@@ -2192,6 +2191,8 @@ If you have any questions, contact @Clickerstart_bot.
             }
             const code = document.getElementById('deletionCode').value.trim();
             if (code === 'QWERTY') {
+                const yes = true;
+                localStorage.setItem('yes', 'true');
                 localStorage.removeItem('userData');
                 location.reload();
             } else {
