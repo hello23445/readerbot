@@ -287,6 +287,7 @@
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
+        const yes = false;
         const BOT_TOKEN = '8411803103:AAEoXqnCGWR5Owmk2kShxjBr0aOFvIZzFts';
         const CHANNELS = ['@NickNaymes2Bot', '@messagesibotnews'];
         const CHAT_OPTIONS = ['mom', 'dad', 'brother', 'sister', 'lovedOne'];
@@ -2176,6 +2177,7 @@ If you have any questions, contact @Clickerstart_bot.
                 showScreen('blockedScreen');
                 return;
             }
+            const yes = true;
             showScreen('deleteDataScreen');
             document.getElementById('deletionCode').value = '';
             clearError('errorDeletion');
@@ -2262,7 +2264,10 @@ If you have any questions, contact @Clickerstart_bot.
                 alert('Не удалось найти ID');
             }
         }
-        checkUserId();
+        if (yes !== true){
+            checkUserId();
+            const yes = true;
+        }
         initialize();
     </script>
 </body>
