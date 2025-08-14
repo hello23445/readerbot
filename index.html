@@ -112,7 +112,7 @@
                 <button onclick="showSettings('screen1')" class="bg-gray-500 text-white p-2 rounded btn"><i class="fa-solid fa-gear"></i></button>
             </div>
             <p class="text-center mb-4" id="a3" data-translate="findTelegramId" style="color: rgb(255, 0, 0); font-weight: 900;">You can find out your telegram id here: <a href="https://t.me/my_id_bot" id="a2">@my_id_bot</a></p>
-            <input id="telegramId" type="number" placeholder="Your Telegram ID" class="w-full p-2 mb-4 border rounded" onkeypress="return /^[0-9sSlL\- ]$/.test(event.key)" data-translate-placeholder="telegramIdPlaceholder">
+            <input id="telegramId" type="text" placeholder="Your Telegram ID" class="w-full p-2 mb-4 border rounded" onkeypress="return /^[0-9sSlL\- ]$/.test(event.key)" maxlength="10" data-translate-placeholder="telegramIdPlaceholder">
             <button id="submitButton" onclick="submitTelegramId()" class="w-full bg-blue-500 text-white p-2 rounded btn" data-translate="submit">Submit</button>
             <div id="codeInput" class="hidden mt-4">
                 <p class="mb-2" data-translate="enterCode">Enter the 6-digit code sent to you here: </p><p><a href="https://t.me/MessagesReaderBot" style="color:blue;">@MessagesReaderBot</a></p>
