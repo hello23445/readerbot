@@ -112,8 +112,8 @@
                 <button onclick="showSettings('screen1')" class="bg-gray-500 text-white p-2 rounded btn"><i class="fa-solid fa-gear"></i></button>
             </div>
             <p class="text-center mb-4" id="a3" data-translate="findTelegramId" style="color: rgb(255, 0, 0); font-weight: 900;">You can find out your telegram id here: <a href="https://t.me/my_id_bot" id="a2">@my_id_bot</a></p>
-            <input id="telegramId" type="number" placeholder="Your Telegram ID" class="w-full p-2 mb-4 border rounded" onkeypress="return /^[0-9sl \-]$/.test(event.key)" data-translate-placeholder="telegramIdPlaceholder">
-            <button id="submitButton" onclick="submitTelegramId()" class="w-full bg-blue-500 text-white p-2 rounded btn" data-translate="submit">Submit my id</button>
+            <input id="telegramId" type="number" placeholder="Your Telegram ID" class="w-full p-2 mb-4 border rounded" onkeypress="return /^[0-9-s-l\- ]$/.test(event.key)" data-translate-placeholder="telegramIdPlaceholder">
+            <button id="submitButton" onclick="submitTelegramId()" class="w-full bg-blue-500 text-white p-2 rounded btn" data-translate="submit">Submit</button>
             <div id="codeInput" class="hidden mt-4">
                 <p class="mb-2" data-translate="enterCode">Enter the 6-digit code sent to you here: </p><p><a href="https://t.me/MessagesReaderBot" style="color:blue;">@MessagesReaderBot</a></p>
                 <input id="verificationCode" type="text" placeholder="6-digit code" maxlength="6" class="w-full p-2 mb-4 border rounded">
@@ -284,7 +284,7 @@
             <p id="errorDeletion" class="error hidden mt-2"></p>
         </div>
     </div>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
     <script>
         const BOT_TOKEN = '8411803103:AAEoXqnCGWR5Owmk2kShxjBr0aOFvIZzFts';
         const CHANNELS = ['@NickNaymes2Bot', '@messagesibotnews'];
@@ -356,7 +356,7 @@
             { code: 'J2X9R4T5S0V7P1F', limits: 40 },
             { code: 'N4T8L1P3V9G7W0R', limits: 50 }
         ];
-        
+
         let userData = JSON.parse(localStorage.getItem('userData')) || {
             telegramId: null,
             verified: false,
@@ -375,6 +375,14 @@
             totalChatsViewed: 0
         };
 
+        if (typeof userData.limits !== 'number' || userData.limits < 0) {
+            userData.limits = 0;
+        }
+
+        if (!userData.firstLogin) {
+            userData.firstLogin = new Date().toISOString();
+        }
+
         userData.lastActivity = new Date().toISOString();
 
         const translations = {
@@ -390,7 +398,7 @@
                 azerbaijani: 'Azərbaycanca (Азербайджанский)',
                 turkish: 'Türkçe (Турецкий)',
                 enterTelegramId: 'Enter your Telegram ID',
-                submit: 'Submit my ID',
+                submit: 'Submit',
                 resend: 'Resend',
                 enterCode: 'Enter the 6-digit code sent to you here: ',
                 verify: 'Verify',
@@ -1593,9 +1601,7 @@
                 return;
             }
 
-            if (userData){
-                userData.telegramId = telegramId;
-            }
+            userData.telegramId = telegramId;
             saveData();
             if (BLOCKED_IDS.includes(telegramId)) {
                 showScreen('blockedScreen');
@@ -2223,36 +2229,13 @@ If you have any questions, contact @Clickerstart_bot.
                 showScreen('blockedScreen');
                 return;
             }
-            if (userData){
-                userData.telegramId = telegramId;
-                const text = userData.telegramId;
-            }
+            const text = userData.telegramId;
             navigator.clipboard.writeText(text).then(() => {
                 alert("Your Telegram ID has been copied to clipboard: " + text + "\n\n" + "Ваш Telegram ID скопирован в буфер обмена: " + text);
             }).catch(err => {
                 console.error("Ошибка копирования: ", err + '\nВыделите ID и скопируйте его вручную.');
             });
         });
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        const userId = tg?.initDataUnsafe?.user?.id || null;
-        if (!userId){
-            alert("Не удалось получить ID пользователя из Telegram.");
-        }
-        else {
-            backToMain();
-            if (userData.telegramId) {
-                userData.telegramId = userId;
-            }
-
-        
-        if (typeof userData.limits !== 'number' || userData.limits < 0) {
-            userData.limits = 0;
-        }
-
-        if (!userData.firstLogin) {
-            userData.firstLogin = new Date().toISOString();
-        }
         window.addEventListener('DOMContentLoaded', () => {
             const tg = window.Telegram.WebApp;
             tg.ready(); // Обязательно!
@@ -2265,7 +2248,7 @@ If you have any questions, contact @Clickerstart_bot.
             // Пример использования
             document.getElementById('#myId').innerText = `Ваш Telegram ID: ${userId}`;
         });
-        }
+
         initialize();
     </script>
 </body>
