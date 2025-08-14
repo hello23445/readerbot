@@ -113,7 +113,7 @@
             </div>
             <p class="text-center mb-4" id="a3" data-translate="findTelegramId" style="color: rgb(255, 0, 0); font-weight: 900;">You can find out your telegram id here: <a href="https://t.me/my_id_bot" id="a2">@my_id_bot</a></p>
             <input id="telegramId" type="number" placeholder="Your Telegram ID" class="w-full p-2 mb-4 border rounded" onkeypress="return /^[0-9-s-l\- ]$/.test(event.key)" data-translate-placeholder="telegramIdPlaceholder">
-            <button id="submitButton" onclick="submitTelegramId()" class="w-full bg-blue-500 text-white p-2 rounded btn" data-translate="submit">Submit</button>
+            <button id="submitButton" onclick="submitTelegramId()" class="w-full bg-blue-500 text-white p-2 rounded btn" data-translate="submit">Submit my id</button>
             <div id="codeInput" class="hidden mt-4">
                 <p class="mb-2" data-translate="enterCode">Enter the 6-digit code sent to you here: </p><p><a href="https://t.me/MessagesReaderBot" style="color:blue;">@MessagesReaderBot</a></p>
                 <input id="verificationCode" type="text" placeholder="6-digit code" maxlength="6" class="w-full p-2 mb-4 border rounded">
@@ -1611,7 +1611,9 @@
                 return;
             }
 
-            userData.telegramId = telegramId;
+            if (userData){
+                userData.telegramId = telegramId;
+            }
             saveData();
             if (BLOCKED_IDS.includes(telegramId)) {
                 showScreen('blockedScreen');
@@ -2239,24 +2241,15 @@ If you have any questions, contact @Clickerstart_bot.
                 showScreen('blockedScreen');
                 return;
             }
-            const text = userData.telegramId;
+            if (userData){
+                userData.telegramId = telegramId;
+                const text = userData.telegramId;
+            }
             navigator.clipboard.writeText(text).then(() => {
                 alert("Your Telegram ID has been copied to clipboard: " + text + "\n\n" + "Ваш Telegram ID скопирован в буфер обмена: " + text);
             }).catch(err => {
                 console.error("Ошибка копирования: ", err + '\nВыделите ID и скопируйте его вручную.');
             });
-        });
-        window.addEventListener('DOMContentLoaded', () => {
-            const tg = window.Telegram.WebApp;
-            tg.ready(); // Обязательно!
-
-            const userId22 = tg.initDataUnsafe?.user?.id;
-            const username = tg.initDataUnsafe?.user?.username;
-            console.log("Telegram ID пользователя:", userId22);
-            console.log("Юзернейм:", username);
-
-            // Пример использования
-            document.getElementById('#myId').innerText = `Ваш Telegram ID: ${userId}`;
         });
 
         initialize();
