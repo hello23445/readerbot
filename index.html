@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Verification App</title>
+    <title>Telegram Verification Application</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -265,9 +265,10 @@
                     <option value="be" data-translate="belarusian">Беларуская (Белорусский)</option>
                     <option value="az" data-translate="azerbaijani">Azərbaycanca (Азербайджанский)</option>
                     <option value="tr" data-translate="turkish">Türkçe (Турецкий)</option>
+                    <option value="ky" data-translate="kyrgyz">Кыргызча (Киргизский)</option>
                 </select>
             </div>
-            <button onclick="showDeleteDataScreen()" class="w-full bg-red-500 text-white p-2 mb-2 rounded btn" data-translate="requestDataDeletion" id="data_deletion" disabled>Request Data Deletion</button>
+            <button onclick="showDeleteDataScreen()" class="w-full bg-red-500 text-white p-2 mb-2 rounded btn" data-translate="requestDataDeletion" id="data_deletion" disabled title="Register to request data deletion">Request Data Deletion</button>
             <button onclick="applySettings()" class="w-full bg-blue-500 text-white p-2 mb-2 rounded btn" data-translate="apply">Apply</button>
             <button onclick="showScreen(previousScreen)" class="w-full bg-gray-500 text-white p-2 rounded btn" data-translate="back">Back</button>
         </div>
@@ -392,14 +393,15 @@
             en: {
                 // ... существующие переводы на английский ...
                 language: 'Language',
-                english: 'English (Английский)',
-                russian: 'Русский (Русский)',
-                uzbek: 'Oʻzbekcha (Узбекский)',
-                kazakh: 'Қазақша (Казахский)',
-                ukrainian: 'Українська (Украинский)',
-                belarusian: 'Беларуская (Белорусский)',
-                azerbaijani: 'Azərbaycanca (Азербайджанский)',
-                turkish: 'Türkçe (Турецкий)',
+                english: 'English',
+                russian: 'Русский (Russian)',
+                uzbek: 'Oʻzbekcha (Uzbek)',
+                kazakh: 'Қазақша (Kazakh)',
+                ukrainian: 'Українська (Ukrainian)',
+                belarusian: 'Беларуская (Belarusian)',
+                azerbaijani: 'Azərbaycanca (Azerbaijani)',
+                turkish: 'Türkçe (Turkish)',
+                kyrgyz: 'Кыргызча (Kyrgyz)',
                 enterTelegramId: 'Enter your Telegram ID',
                 submit: 'Submit',
                 resend: 'Resend',
@@ -544,6 +546,7 @@
                 belarusian: 'Беларуская (Белорусский)',
                 azerbaijani: 'Azərbaycanca (Азербайджанский)',
                 turkish: 'Türkçe (Турецкий)',
+                kyrgyz: 'Кыргызча (Киргизский)',
                 enterTelegramId: 'Введите свой ID Telegram',
                 submit: 'Отправить',
                 resend: 'Отправить заново',
@@ -688,6 +691,7 @@
                 belarusian: 'Беларуская (Белорусча)',
                 azerbaijani: 'Azərbaycanca (Озарбайжонча)',
                 turkish: 'Türkçe (Туркча)',
+                kyrgyz: 'Кыргызча (Қирғизча)',
                 enterTelegramId: 'Telegram ID-ni kiriting',
                 submit: 'Yuborish',
                 resend: 'Qayta yuborish',
@@ -823,6 +827,7 @@
             kk: {
                 auto: 'Авто',
                 language: 'Тіл',
+                kyrgyz: 'Қиргизча (Қырғызша)',
                 english: 'English (Ағылшынша)',
                 russian: 'Русский (Орысша)',
                 uzbek: 'Oʻzbekcha (Өзбекше)',
@@ -966,6 +971,7 @@
 
             },
             be: {
+                kyrgyz: 'Кыргызча (Кіргізскі)',
                 auto: 'Аўта',
                 language: 'Мова',
                 english: 'English (Англійская)',
@@ -1112,6 +1118,7 @@
 
             },
             az: {
+                kyrgyz: 'Кыргызча (Kirgiz dili)',
                 auto: 'Avto',
                 language: 'Dil',
                 english: 'English (İngilis dili)',
@@ -1259,6 +1266,7 @@
             uk: {
                 auto: 'Авто',
                 language: 'Мова',
+                kyrgyz: 'Кыргызча (Киргизька)',
                 english: 'English (Англійська)',
                 russian: 'Русский (Російська)',
                 uzbek: 'Oʻzbekcha (Узбецька)',
@@ -1403,6 +1411,7 @@
             },
             tr: {
                 language: 'Dil',
+                kyrgyz: 'Кыргызча (Kırgızca)',
                 english: 'English (İngilizce)',
                 russian: 'Русский (Rusça)',
                 uzbek: 'Oʻzbekcha (Özbekçe)',
@@ -1545,7 +1554,147 @@
                     ["Seninle mutluyum.", "Seninle olmak mutluluk."]
                 ]
 
+            },
+            ky: {
+                auto: 'Авто',
+                language: 'Тил',
+                english: 'English (Англисче)',
+                russian: 'Русский (Орусча)',
+                uzbek: 'Oʻzbekcha (Өзбекче)',
+                kazakh: 'Қазақша (Казакча)',
+                ukrainian: 'Українська (Украинче)',
+                belarusian: 'Беларуская (Беларусча)',
+                azerbaijani: 'Azərbaycanca (Азербайжанча)',
+                turkish: 'Türkçe (Түркчө)',
+                kyrgyz: 'Кыргызча (Кыргызча)',
+                enterTelegramId: 'Telegram ID-иңизди киргизиңиз',
+                submit: 'Жөнөтүү',
+                resend: 'Кайра жөнөтүү',
+                enterCode: 'Сизге жөнөтүлгөн 6 сандык кодду киргизиңиз: ',
+                verify: 'Тастыктоо',
+                subscribeToChannels: 'Каналдарга жазылыңыз',
+                pleaseSubscribe: 'Сураныч, төмөнкү каналдарга жазылыңыз:',
+                subscribeToNickNaymes2Bot: '@NickNaymes2Bot-ка жазылуу',
+                subscribeToMessagesibotnews: '@messagesibotnews-ка жазылуу',
+                checkSubscription: 'Жазылууну текшерүү',
+                backToIdInput: 'ID киргизүү экранына кайтуу',
+                mainMenu: 'Башкы меню',
+                settings: 'Орнотуулар',
+                currentLimits: 'Азыркы лимиттер: ',
+                start: 'Баштоо',
+                topUpLimits: 'Лимиттерди толуктоо',
+                selectTopUpMethod: 'Толуктоо ыкмасын тандаңыз',
+                promoCode: 'Промокод',
+                watchAd: 'Жарнама көрүү',
+                buyAd: 'Жарнама сатып алуу',
+                noAdsAvailable: 'Жарнама жеткиликтүү эмес',
+                continueAd: 'Улантуу',
+                enterUsername: 'Колдонуучу атын киргизиңиз',
+                next: 'Кийинки',
+                back: 'Артка',
+                selectGender: 'нын жынысын тандаңыз ',
+                male: 'Эркек',
+                female: 'Аял',
+                gender: 'Жыныс',
+                loading: 'Жүктөлүүдө...',
+                translating: 'Кыргызчага которулууда...',
+                displaying: 'Табылган чаттар жана билдирүүлөр көрсөтүлүүдө...',
+                selectChat: 'Чатты тандаңыз',
+                fakeChat: 'Мен тапкан жана кыргызчага которгон катташуу:',
+                enterPromoCode: 'Промокодду киргизиңиз',
+                buyPromoCodes: 'Промокоддорду @Clickerstart_bot-тан сатып алсаңыз болот',
+                noLimitsAvailable: 'Лимиттер жеткиликтүү эмес',
+                pleaseTopUp: 'Сизде лимиттер калбады. Сураныч, толуктаңыз.',
+                backToMainMenu: 'Башкы менюга кайтуу',
+                theme: 'Тема',
+                light: 'Жарык',
+                dark: 'Караңгы',
+                apply: 'Колдонуу',
+                invalidUsername: 'Туура эмес колдонуучу аты!',
+                usernameAlreadyUsed: 'Бул колдонуучу аты буга чейин текшерилген',
+                invalidCode: 'Туура эмес код',
+                invalidPromoCode: 'Туура эмес промокод!',
+                promoCodeAlreadyUsed: 'Бул промокод буга чейин колдонулган!',
+                success: 'Ийгилик!',
+                mom: 'Эне',
+                dad: 'Ата',
+                brother: 'Ага',
+                sister: 'Эже',
+                lovedOne: 'Сүйүктүү',
+                lovedOneMale: 'Сүйүктүү (эркек)',
+                lovedOneFemale: 'Сүйүктүү (аял)',
+                youCantCheckSamePerson: 'Бир эле адамды бир нече жолу текшерүүгө болбойт!',
+                promoCodesEntered: 'Киргизилген промокоддор: ',
+                limitsFromPromos: 'Промокоддон алынган лимиттер: ',
+                requestDataDeletion: 'Маалыматты өчүрүү өтүнүчү',
+                enterDeletionCode: 'Маалыматты өчүрүү үчүн кодду киргизиңиз',
+                deletionCodeIncorrect: 'Туура эмес код!',
+                getDeletionCode: 'Өчүрүү кодун @Clickerstart_bot-тан алсаңыз болот',
+                deletionCodePlaceholder: 'Өчүрүү коду',
+                findTelegramId: 'Telegram ID-иңизди бул жерден билсеңиз болот: <a href="https://t.me/my_id_bot" id="a2"><u>@my_id_bot</u></a>',
+                telegramIdPlaceholder: 'Сиздин Telegram ID',
+                momConversations: [
+                    ["Салам, эне!", "Салам, балам! Бүгүн кандайсың?"],
+                    ["Эне, сейилдеп келсем болобу?", "Каякка баргың келет?", "Досторум менен паркка.", "Кийин алып кетейинби?"],
+                    ["Эне, математикадан беш алдым!", "Азамат! Белгилейбизби?", "Ооба, торт алабыз!"],
+                    ["Эне, эртең экзамен бар, жардам бересиңби?", "Албетте, бирге тапшырмаларды чечебиз.", "Рахмат! Сен эң мыктысың."],
+                    ["Эне, иште кечигем, кечки тамакты күтпө.", "Макул, бошогондо чал.", "Сөзсүз чалам."],
+                    ["Эне, посылканы алдыңбы?", "Ооба, ашканада турат.", "Рахмат, кечинде карайм."],
+                    ["Эне, кеңешиң керек: кайсы куртканы тандайын?", "Сүрөтүн көрсөт, жардам берем.", "Жибердим, кайсысы жакшы?"],
+                    ["Эне, чарчадым, бүгүн сабак көп болду.", "Дем ал, мен чай жана печенье даярдайм.", "Рахмат, дал ушу керек эле."]
+                ],
+                dadConversations: [
+                    ["Ата, кандайсың?", "Жакшы, балам.", "Эмне кылып жатасың?", "Телевизор көрүп жатам."],
+                    ["Ата, машинага жардам бересиңби?", "Албетте, эмне болду?", "Мотор иштебей жатат.", "Аккумуляторду жана стартерди текшеребиз."],
+                    ["Ата, кечкиге фильм сунушта.", "Жаңы триллерди көр, жакшы пикирлер бар.", "Макул, сунуш үчүн рахмат!"],
+                    ["Ата, шахмат турнирде жеңдим!", "Куттуктайм! Азаматсың.", "Сенин сабактарыңсыз болбойт эле."],
+                    ["Ата, инструменттериңди алсам болобу?", "Албетте, этият бол.", "Сөз берем, таза кайтарам."],
+                    ["Ата, дем алышта пландар барбы?", "Балык улоого баргым келет.", "Мен да барсам болобу?", "Кармактарды алып, бирге барабыз!"],
+                    ["Ата, энеме белек алдым.", "Жакшы ой, ал кубанат.", "Үмүттөнөм, жактырат."],
+                    ["Ата, жаштыгың тууралуу айтып берчи.", "Мен сенин жашыңда көчөдө ойночубуз..."]
+                ],
+                brotherConversations: [
+                    ["Салам, ага!", "Салам! Кандайсың?", "Жакшы, өзүңчү?"],
+                    ["Ага, кулакчындарыңды берсең болобу?", "Албетте, этият бол.", "Сөз берем."],
+                    ["Ага, кечинде футбол ойнойбузбу?", "Болот, саат канчада?", "Жетиде мектеп стадионунда."],
+                    ["Ага, отургучту жылдырууга жардам бересиңби?", "Маселе жок, бирге көтөрөбүз.", "Рахмат!"],
+                    ["Ага, рюкзагымды көрдүңбү?", "Ооба, коридордо калтыргансың.", "Таптым, рахмат."],
+                    ["Ага, каникулга кандай пландар?", "Досторумдун дачасына баргым келет.", "Жакшы угулат."],
+                    ["Ага, ноутбугуңду колдонсом болобу?", "Болот, ашыкча программа орнотпо.", "Түшүндүм."],
+                    ["Ага, оюнубузду эстейсиңби?", "Албетте, рекорд дагы деле менде.", "Кайра ойнойбуз!"]
+                ],
+                sisterConversations: [
+                    ["Эже, үйдөсүңбү?", "Ооба, жаңы келдим.", "Жаңылык барбы?"],
+                    ["Эже, бүтүрүү үчүн көйнөгүңдү берсең болобу?", "Албетте, кийип көр.", "Рахмат!"],
+                    ["Эже, чачымды жасоого жардам бересиңби?", "Кубануу менен.", "Сен эң мыкты стилистсиң."],
+                    ["Эже, бирге дүкөнгө баралыбы?", "Кеттик, жаңы сумка алгым келет.", "Жакшы."],
+                    ["Эже, кечкиге кандай пландар?", "Китеп окуйм.", "Бирге фильм көрөбүзбү?", "Кеттик!"],
+                    ["Эже, англис үй тапшырмасын кылдыңбы?", "Ооба, репетиторго көрсөттүм.", "Каталарымды көрсөтүп бересиңби?"],
+                    ["Эже, жаңылыкты уктуңбу?", "Кайсы?", "Мектепте концерт болот дешти.", "Катышыш керек!"],
+                    ["Эже, туулган күнүң менен!", "Рахмат, сен эң мыкты инимсиң."]
+                ],
+                lovedOneMaleConversations: [
+                    ["Салам, сүйүктүүм!", "Салам, жаным! Күнің кандай өттү?"],
+                    ["Жаным, сени сагындым.", "Мен да сени. Кечинде чалабызбы?"],
+                    ["Сүйүктүүм, кечкиге эмне каалайсың?", "Сенин салатың жана пастаң.", "Кубануу менен даярдайм."],
+                    ["Мен сени жакшы көрөм.", "Мен да сени дүйнөдөгү баарынан көп жакшы көрөм."],
+                    ["Жолугушуу кандай өттү?", "Жакшы, жакында айтып берем.", "Күтүп жатам."],
+                    ["Жаным, саякатка чыгабызбы?", "Деңизге баргым келет.", "Маршрут түзөбүз."],
+                    ["Сүйүктүүм, сүрөттөрүмдү көрдүңбү?", "Ооба, сен абдан сулуусуң.", "Рахмат!"],
+                    ["Сени менен болгонума абдан кубанычтамын.", "Мен да күн сайын сени менен бактылуумун."]
+                ],
+                lovedOneFemaleConversations: [
+                    ["Салам, сүйүктүүм!", "Салам, жаным! Күнің кандай өттү?"],
+                    ["Жаным, сени сагындым.", "Мен да сени. Качан жолугабыз?"],
+                    ["Сүйүктүүм, кечинде эмне көрөбүз?", "Комедия көрөлү.", "Жакшы, попкорнга заказ берем."],
+                    ["Мен сени абдан жакшы көрөм.", "Мен да сени бүт жүрөгүм менен жакшы көрөм."],
+                    ["Презентацияң кандай өттү?", "Ийгиликтүү, мактооңду күтүп жатам.", "Азаматсың!"],
+                    ["Жаным, дем алышта тоого баралыбы?", "Таза аба керек.", "Саякат пландаштырабыз."],
+                    ["Сүйүктүүм, жаңы кийим көрдүңбү?", "Ооба, кийип көргүм келет.", "Бирге дүкөнгө барабыз."],
+                    ["Мен сени менен бактылуумун.", "Мен да сени менен болгонума кубанычтамын."]
+                ]
             }
+
         };
 
         let previousScreen = null;
