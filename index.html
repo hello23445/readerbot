@@ -285,6 +285,7 @@
         </div>
     </div>
 
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
         const BOT_TOKEN = '8411803103:AAEoXqnCGWR5Owmk2kShxjBr0aOFvIZzFts';
         const CHANNELS = ['@NickNaymes2Bot', '@messagesibotnews'];
@@ -1600,7 +1601,6 @@
                 showError('error1', translations[userData.language].enterTelegramId || 'Please enter Telegram ID');
                 return;
             }
-
             userData.telegramId = telegramId;
             saveData();
             if (BLOCKED_IDS.includes(telegramId)) {
@@ -2238,7 +2238,7 @@ If you have any questions, contact @Clickerstart_bot.
         });
         window.addEventListener('DOMContentLoaded', () => {
             const tg = window.Telegram.WebApp;
-            tg.ready(); // Обязательно!
+            tg.expand(); // Обязательно!
 
             const userId22 = tg.initDataUnsafe?.user?.id;
             const username = tg.initDataUnsafe?.user?.username;
@@ -2248,7 +2248,20 @@ If you have any questions, contact @Clickerstart_bot.
             // Пример использования
             document.getElementById('#myId').innerText = `Ваш Telegram ID: ${userId}`;
         });
+        function checkUserId() {
+            const tg = window.Telegram?.WebApp;
+            const userId = tg?.initDataUnsafe?.user?.id || null;
 
+            if (userId) {
+                backToMain();
+                userData.telegramId = String(userId);
+                userData.verified = true;
+                document.getElementById('#myId').innerText = `Ваш Telegram ID: ${userId}`;
+            } else {
+                alert('Не удалось найти ID');
+            }
+        }
+        checkUserId();
         initialize();
     </script>
 </body>
