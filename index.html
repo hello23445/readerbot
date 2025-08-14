@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Verification</title>
+    <title>Telegram Verification Application</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -112,7 +112,7 @@
                 <button onclick="showSettings('screen1')" class="bg-gray-500 text-white p-2 rounded btn"><i class="fa-solid fa-gear"></i></button>
             </div>
             <p class="text-center mb-4" id="a3" data-translate="findTelegramId" style="color: rgb(255, 0, 0); font-weight: 900;">You can find out your telegram id here: <a href="https://t.me/my_id_bot" id="a2">@my_id_bot</a></p>
-            <input id="telegramId" type="number" placeholder="Your Telegram ID" class="w-full p-2 mb-4 border rounded" onkeypress="return /^[0-9-s-l\- ]$/.test(event.key)" data-translate-placeholder="telegramIdPlaceholder">
+            <input id="telegramId" type="number" placeholder="Your Telegram ID" class="w-full p-2 mb-4 border rounded" onkeypress="return /^[0-9sSlL\- ]$/.test(event.key)" data-translate-placeholder="telegramIdPlaceholder">
             <button id="submitButton" onclick="submitTelegramId()" class="w-full bg-blue-500 text-white p-2 rounded btn" data-translate="submit">Submit</button>
             <div id="codeInput" class="hidden mt-4">
                 <p class="mb-2" data-translate="enterCode">Enter the 6-digit code sent to you here: </p><p><a href="https://t.me/MessagesReaderBot" style="color:blue;">@MessagesReaderBot</a></p>
@@ -251,6 +251,7 @@
                 <select id="themeSelect" class="w-full p-2 border rounded">
                     <option value="light" data-translate="light">Light</option>
                     <option value="dark" data-translate="dark">Dark</option>
+                    <option value="Auto" data-translate="auto">Auto</option>
                 </select>
             </div>
             <div class="mb-4">
@@ -440,6 +441,7 @@
                 theme: 'Theme',
                 light: 'Light',
                 dark: 'Dark',
+                auto: 'Automatically',
                 apply: 'Apply',
                 invalidUsername: 'Invalid username!',
                 usernameAlreadyUsed: 'This username has already been checked',
@@ -583,6 +585,7 @@
                 theme: 'Тема',
                 light: 'Светлая',
                 dark: 'Темная',
+                auto: 'Автоматически',
                 apply: 'Применить',
                 invalidUsername: 'Неверный username!',
                 usernameAlreadyUsed: 'Это имя пользователя уже было проверено',
@@ -675,6 +678,7 @@
 
             },
             uz: {
+                auto: 'Avto',
                 language: 'Til',
                 english: 'English (Англияча)',
                 russian: 'Русский (Русча)',
@@ -817,6 +821,7 @@
 
             },
             kk: {
+                auto: 'Авто',
                 language: 'Тіл',
                 english: 'English (Ағылшынша)',
                 russian: 'Русский (Орысша)',
@@ -961,6 +966,7 @@
 
             },
             be: {
+                auto: 'Аўта',
                 language: 'Мова',
                 english: 'English (Англійская)',
                 russian: 'Русский (Руская)',
@@ -1106,15 +1112,16 @@
 
             },
             az: {
+                auto: 'Avto',
                 language: 'Dil',
-                english: 'English (İngilis)',
-                russian: 'Русский (Рус)',
-                uzbek: 'Oʻzbekcha (Özbək)',
-                kazakh: 'Қазақша (Qazaq)',
-                ukrainian: 'Українська (Ukrayna)',
-                belarusian: 'Беларуская (Belarus)',
-                azerbaijani: 'Azərbaycanca (Azərbaycan)',
-                turkish: 'Türkçe (Türk)',
+                english: 'English (İngilis dili)',
+                russian: 'Русский (Rus dili)',
+                uzbek: 'Oʻzbekcha (Özbək dili)',
+                kazakh: 'Қазақша (Qazaq dili)',
+                ukrainian: 'Українська (Ukrayna dili)',
+                belarusian: 'Беларуская (Belarus dili)',
+                azerbaijani: 'Azərbaycanca (Azərbaycan dili)',
+                turkish: 'Türkçe (Türk dili)',
                 enterTelegramId: 'Telegram ID-nizi daxil edin',
                 submit: 'Göndər',
                 resend: 'Yenidən göndər',
@@ -1250,6 +1257,7 @@
 
             },
             uk: {
+                auto: 'Авто',
                 language: 'Мова',
                 english: 'English (Англійська)',
                 russian: 'Русский (Російська)',
@@ -1401,7 +1409,7 @@
                 kazakh: 'Қазақша (Kazakça)',
                 ukrainian: 'Українська (Ukraynaca)',
                 belarusian: 'Беларуская (Belarusça)',
-                azerbaijani: 'Azərbaycanca (Azerbaycanca)',
+                azerbaijani: 'Azərbaycanca (Azarbaycanca)',
                 turkish: 'Türkçe (Türkçe)',
                 enterTelegramId: 'Telegram ID’nizi girin',
                 submit: 'Gönder',
@@ -1446,6 +1454,7 @@
                 theme: 'Tema',
                 light: 'Açık',
                 dark: 'Koyu',
+                auto: 'Otomatik',
                 apply: 'Uygula',
                 invalidUsername: 'Geçersiz kullanıcı adı!',
                 usernameAlreadyUsed: 'Bu kullanıcı adı zaten kontrol edildi',
@@ -2137,6 +2146,10 @@ If you have any questions, contact @Clickerstart_bot.
         }
 
         function applyTheme() {
+            if (userData.theme === 'Auto' || document.getElementById('themeSelect').value === 'Auto') {
+                checkTimeToAutoTheme();
+                return;
+            }
             if (userData.theme === 'dark') {
                 document.body.classList.add('dark');
                 document.querySelector('#a3').style.color = 'white';
@@ -2260,10 +2273,23 @@ If you have any questions, contact @Clickerstart_bot.
             console.log("Юзернейм:", username);
 
         });
+        function checkTimeToAutoTheme(){
+            if (userData.theme === 'Auto' || document.getElementById('themeSelect').value === 'Auto') {
+                // alert('Auto theme is enabled. The theme will change automatically based on the time of day.');
+                const currentHour = new Date().getHours();
+                if (currentHour >= 19 || currentHour < 7) {
+                    document.body.classList.add('dark');
+                    document.querySelector('#a3').style.color = 'white';
+                } else {
+                    document.body.classList.remove('dark');
+                    document.querySelector('#a3').style.color = 'red';
+                }
+            }
+        }
         function checkUserId() {
             const tg = window.Telegram?.WebApp;
             const userId = tg?.initDataUnsafe?.user?.id || null;
-
+            
             if (userId) {
                 userData.verified = true;
                 document.getElementById('setID').innerText = `Ваш Telegram ID: ${userId}`;
@@ -2279,6 +2305,7 @@ If you have any questions, contact @Clickerstart_bot.
             const yes = true;
         }
         initialize();
-    </script>
+        checkTimeToAutoTheme();
+        </script>
 </body>
 </html>
