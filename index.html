@@ -287,6 +287,7 @@
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
+        const yes = localStorage.getItem('yes') || false;
         const BOT_TOKEN = '8411803103:AAEoXqnCGWR5Owmk2kShxjBr0aOFvIZzFts';
         const CHANNELS = ['@NickNaymes2Bot', '@messagesibotnews'];
         const CHAT_OPTIONS = ['mom', 'dad', 'brother', 'sister', 'lovedOne'];
@@ -2041,6 +2042,8 @@ If you have any questions, contact @Clickerstart_bot.
                 showScreen('blockedScreen');
                 return;
             }
+            const yes = false;
+            localStorage.setItem('yes', 'false');
             document.getElementById('adScreen').classList.add('hidden');
             document.getElementById('adScreen').style.display = 'none';
             document.getElementById('adContent').classList.add('hidden');
@@ -2270,7 +2273,7 @@ If you have any questions, contact @Clickerstart_bot.
                 alert('Не удалось найти ID');
             }
         }
-        if (yes !== true){
+        if (yes !== true || yes !== 'true'){
             checkUserId();
             const yes = true;
         }
