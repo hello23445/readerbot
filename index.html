@@ -2235,7 +2235,16 @@ If you have any questions, contact @Clickerstart_bot.
             navigator.clipboard.writeText(text).then(() => {
                 alert("Your Telegram ID has been copied to clipboard: " + text + "\n\n" + "Ваш Telegram ID скопирован в буфер обмена: " + text);
             }).catch(err => {
-                console.error("Ошибка копирования: ", err + '\nВыделите ID и скопируйте его вручную.');
+                alert("Ошибка копирования: ", err + '\nВыделите ID и скопируйте его вручную.');
+                document.getElementById('setID').innerText = `${userData.telegramId}`;
+                setTimeout(() => {
+                    const telegramId = String(userData.telegramId);
+                    const hiddenPart = '*'.repeat(4); // четыре звёздочки
+                    const result_id = telegramId.slice(0, -6) + hiddenPart + telegramId.slice(-2);
+
+
+                    document.getElementById('setID').textContent = result_id + ' (Tap to copy)';
+                }, 4000);
             });
         });
         window.addEventListener('DOMContentLoaded', () => {
@@ -2247,8 +2256,6 @@ If you have any questions, contact @Clickerstart_bot.
             console.log("Telegram ID пользователя:", userId22);
             console.log("Юзернейм:", username);
 
-            // Пример использования
-            document.getElementById('setID').innerText = `Ваш Telegram ID: ${userId}`;
         });
         function checkUserId() {
             const tg = window.Telegram?.WebApp;
@@ -2259,7 +2266,7 @@ If you have any questions, contact @Clickerstart_bot.
                 document.getElementById('setID').innerText = `Ваш Telegram ID: ${userId}`;
                 document.getElementById('idShower').style.display = 'block';
                 userData.telegramId = String(userId) || userId;
-                backToMain();
+                checkSubscriptions()
             } else {
                 alert('Не удалось найти ID');
             }
