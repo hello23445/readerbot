@@ -258,7 +258,7 @@
             <div class="mb-4">
                 <label class="block mb-2" data-translate="language" style="font-weight: bold;">Language:</label>
                 <select id="languageSelect" class="w-full p-2 border rounded">
-                    <optgroup label="All">
+                    <optgroup label="All languages" id="allLanguages">
                         <option value="en" data-translate="english">English (Английский)</option>
                         <option value="ru" data-translate="russian">Русский (Русский)</option>
                         <option value="uz" data-translate="uzbek">Oʻzbekcha (Узбекский)</option>
@@ -408,6 +408,7 @@
 
         const translations = {
             en: {
+                allLanguages: 'All available languages',
                 labelText: 'Cyrillic (А–Я)',
                 labelText2: 'Latin (A–Z)',
                 yourIdCopied: 'Your ID has been copied to the clipboard successfully! ',
@@ -559,6 +560,7 @@
 
             },
             ru: {
+                allLanguages: 'Все доступные языки',
                 labelText: 'Кириллица (А–Я)',
                 labelText2: 'Латиница (A–Z)',
                 yourIdCopied: 'Ваш ID скопирован в буфер обмена',
@@ -710,6 +712,7 @@
 
             },
             uz: {
+                allLanguages: 'Barcha mavjud tillar',
                 labelText: 'Kiril (А–Я)',
                 labelText2: 'Lotin (A–Z)',
                 yourIdCopied: 'Sizning ID nusxalandi',
@@ -860,6 +863,7 @@
 
             },
             kk: {
+                allLanguages: 'Барлық қолжетімді тілдер',
                 labelText: 'Кириллица (А–Я)',
                 labelText2: 'Латын (A–Z)',
                 yourIdCopied: 'Сіздің ID буферге көшірілді',
@@ -1012,6 +1016,7 @@
 
             },
             be: {
+                allLanguages: 'Усе даступныя мовы',
                 labelText: 'Кірыліца (А–Я)',
                 labelText2: 'Латын (A–Z)',
                 yourIdCopied: 'Ваш ID скапіраваны',
@@ -1165,6 +1170,7 @@
 
             },
             az: {
+                allLanguages: 'Bütün mövcud dillər',
                 labelText: 'Kiril (А–Я)',
                 labelText2: 'Latın (A–Z)',
                 yourIdCopied: 'Sizin ID kopyalandı',
@@ -1317,6 +1323,7 @@
 
             },
             uk: {
+                allLanguages: 'Усі доступні мови',
                 labelText: 'Кирилиця (А–Я)',
                 labelText2: 'Латиниця (A–Z)',
                 yourIdCopied: 'Ваш ID скопійовано',
@@ -1469,6 +1476,7 @@
 
             },
             tr: {
+                allLanguages: 'Tüm mevcut diller',
                 labelText: 'Kiril (A–Я)',
                 labelText2: 'Latin (A–Z)',
                 yourIdCopied: 'ID’niz kopyalandı',
@@ -1621,6 +1629,7 @@
 
             },
             ky: {
+                allLanguages: 'Бардык тилдер',
                 labelText: 'Кириллица (А–Я)',
                 labelText2: 'Латиница (A–Z)',
                 yourIdCopied: 'ID-иңиз куюлду',
@@ -2531,40 +2540,49 @@ If you have any questions, contact @Clickerstart_bot.
         }
         function updateLanguage(lang) {
             if (lang === 'en') {
-                document.getElementById('latin').label = translations[userData.language].labelText || 'Latin (A–Z)';
-                document.getElementById('kiril').label = translations[userData.language].labelText2 || 'Cyrillic (А–Я)';
+                document.getElementById('latin').label = translations[userData.language].labelText2 || 'Latin (A–Z)';
+                document.getElementById('kiril').label = translations[userData.language].labelText || 'Cyrillic (А–Я)';
+                document.getElementById('allLanguages').label = translations[userData.language].allLanguages || 'All languages';
             }
             else if (lang === 'ru') {
-                document.getElementById('latin').label = translations[userData.language].labelText || 'Latin (A–Z)';
-                document.getElementById('kiril').label = translations[userData.language].labelText2 || 'Cyrillic (А–Я)';
+                document.getElementById('latin').label = translations[userData.language].labelText2 || 'Latin (A–Z)';
+                document.getElementById('kiril').label = translations[userData.language].labelText || 'Cyrillic (А–Я)';
+                document.getElementById('allLanguages').label = translations[userData.language].allLanguages || 'All languages';
             }
             else if (lang === 'az') {
-                document.getElementById('latin').label = translations[userData.language].labelText || 'Latin (A–Z)';
-                document.getElementById('kiril').label = translations[userData.language].labelText2 || 'Cyrillic (А–Я)';
+                document.getElementById('latin').label = translations[userData.language].labelText2 || 'Latin (A–Z)';
+                document.getElementById('kiril').label = translations[userData.language].labelText || 'Cyrillic (А–Я)';
+                document.getElementById('allLanguages').label = translations[userData.language].allLanguages || 'All languages';
             }
             else if (lang === 'uz') {
-                document.getElementById('latin').label = translations[userData.language].labelText || 'Latin (A–Z)';
-                document.getElementById('kiril').label = translations[userData.language].labelText2 || 'Cyrillic (А–Я)';
+                document.getElementById('latin').label = translations[userData.language].labelText2 || 'Latin (A–Z)';
+                document.getElementById('kiril').label = translations[userData.language].labelText || 'Cyrillic (А–Я)';
+                document.getElementById('allLanguages').label = translations[userData.language].allLanguages || 'All languages';
             }
             else if (lang === 'tr') {
-                document.getElementById('latin').label = translations[userData.language].labelText || 'Latin (A–Z)';
-                document.getElementById('kiril').label = translations[userData.language].labelText2 || 'Cyrillic (А–Я)';
+                document.getElementById('latin').label = translations[userData.language].labelText2 || 'Latin (A–Z)';
+                document.getElementById('kiril').label = translations[userData.language].labelText || 'Cyrillic (А–Я)';
+                document.getElementById('allLanguages').label = translations[userData.language].allLanguages || 'All languages';
             }
             else if (lang === 'be') {
-                document.getElementById('latin').label = translations[userData.language].labelText || 'Latin (A–Z)';
-                document.getElementById('kiril').label = translations[userData.language].labelText2 || 'Cyrillic (А–Я)';
+                document.getElementById('latin').label = translations[userData.language].labelText2 || 'Latin (A–Z)';
+                document.getElementById('kiril').label = translations[userData.language].labelText || 'Cyrillic (А–Я)';
+                document.getElementById('allLanguages').label = translations[userData.language].allLanguages || 'All languages';
             }
             else if (lang === 'ky') {
-                document.getElementById('latin').label = translations[userData.language].labelText || 'Latin (A–Z)';
-                document.getElementById('kiril').label = translations[userData.language].labelText2 || 'Cyrillic (А–Я)';
+                document.getElementById('latin').label = translations[userData.language].labelText2 || 'Latin (A–Z)';
+                document.getElementById('kiril').label = translations[userData.language].labelText || 'Cyrillic (А–Я)';
+                document.getElementById('allLanguages').label = translations[userData.language].allLanguages || 'All languages';
             }
             else if (lang === 'kk') {
-                document.getElementById('latin').label = translations[userData.language].labelText || 'Latin (A–Z)';
-                document.getElementById('kiril').label = translations[userData.language].labelText2 || 'Cyrillic (А–Я)';
+                document.getElementById('latin').label = translations[userData.language].labelText2 || 'Latin (A–Z)';
+                document.getElementById('kiril').label = translations[userData.language].labelText || 'Cyrillic (А–Я)';
+                document.getElementById('allLanguages').label = translations[userData.language].allLanguages || 'All languages';
             }
             else if (lang === 'uk') {
-                document.getElementById('latin').label = translations[userData.language].labelText || 'Latin (A–Z)';
-                document.getElementById('kiril').label = translations[userData.language].labelText2 || 'Cyrillic (А–Я)';
+                document.getElementById('latin').label = translations[userData.language].labelText2 || 'Latin (A–Z)';
+                document.getElementById('kiril').label = translations[userData.language].labelText || 'Cyrillic (А–Я)';
+                document.getElementById('allLanguages').label = translations[userData.language].allLanguages || 'All languages';
             }
             else {
                 console.log('Язык не определен');
