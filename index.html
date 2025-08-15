@@ -2472,8 +2472,18 @@ If you have any questions, contact @Clickerstart_bot.
             });
         });
         function checkSameOnTheDeviceTheme(){
+            // Проверяем, что тема выбрана как "device"
             if (userData.theme === 'device' || document.getElementById('themeSelect').value === 'device') {
-                const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                let isDark = false;
+
+                // Если есть Telegram WebApp, используем его параметры (мини-приложение)
+                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) {
+                    const tg = window.Telegram.WebApp;
+                    isDark = tg.colorScheme === 'dark';
+                } else {
+                    // Если через браузер — смотрим на prefers-color-scheme
+                    isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                }
 
                 if (isDark) {
                     document.body.classList.add('dark');
