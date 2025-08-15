@@ -258,15 +258,31 @@
             <div class="mb-4">
                 <label class="block mb-2" data-translate="language" style="font-weight: bold;">Language:</label>
                 <select id="languageSelect" class="w-full p-2 border rounded">
-                    <option value="en" data-translate="english">English (Английский)</option>
-                    <option value="ru" data-translate="russian">Русский (Русский)</option>
-                    <option value="uz" data-translate="uzbek">Oʻzbekcha (Узбекский)</option>
-                    <option value="kk" data-translate="kazakh">Қазақша (Казахский)</option>
-                    <option value="uk" data-translate="ukrainian">Українська (Украинский)</option>
-                    <option value="be" data-translate="belarusian">Беларуская (Белорусский)</option>
-                    <option value="az" data-translate="azerbaijani">Azərbaycanca (Азербайджанский)</option>
-                    <option value="tr" data-translate="turkish">Türkçe (Турецкий)</option>
-                    <option value="ky" data-translate="kyrgyz">Кыргызча (Киргизский)</option>
+                    <optgroup label="All">
+                        <option value="en" data-translate="english">English (Английский)</option>
+                        <option value="ru" data-translate="russian">Русский (Русский)</option>
+                        <option value="uz" data-translate="uzbek">Oʻzbekcha (Узбекский)</option>
+                        <option value="kk" data-translate="kazakh">Қазақша (Казахский)</option>
+                        <option value="uk" data-translate="ukrainian">Українська (Украинский)</option>
+                        <option value="be" data-translate="belarusian">Беларуская (Белорусский)</option>
+                        <option value="az" data-translate="azerbaijani">Azərbaycanca (Азербайджанский)</option>
+                        <option value="tr" data-translate="turkish">Türkçe (Турецкий)</option>
+                        <option value="ky" data-translate="kyrgyz">Кыргызча (Киргизский)</option>
+                    </optgroup>
+                    <optgroup id="latin" label="Latin (A–Z)">
+                        <option value="az" data-translate="azerbaijani">Azərbaycanca (Азербайджанский)</option>
+                        <option value="en" data-translate="english">English (Английский)</option>
+                        <option value="uz" data-translate="uzbek">Oʻzbekcha (Узбекский)</option>
+                        <option value="tr" data-translate="turkish">Türkçe (Турецкий)</option>
+                    </optgroup>
+
+                    <optgroup id="kiril" label="Cyrillic (А–Я)">
+                        <option value="be" data-translate="belarusian">Беларуская (Белорусский)</option>
+                        <option value="ky" data-translate="kyrgyz">Кыргызча (Киргизский)</option>
+                        <option value="kk" data-translate="kazakh">Қазақша (Казахский)</option>
+                        <option value="ru" data-translate="russian">Русский (Русский)</option>
+                        <option value="uk" data-translate="ukrainian">Українська (Украинский)</option>
+                    </optgroup>
                 </select>
             </div>
             <button onclick="showDeleteDataScreen()" class="w-full bg-red-500 text-white p-2 mb-2 rounded btn" data-translate="requestDataDeletion" id="data_deletion" disabled title="Register to request data deletion">Request Data Deletion</button>
@@ -392,6 +408,8 @@
 
         const translations = {
             en: {
+                labelText: 'Cyrillic (А–Я)',
+                labelText2: 'Latin (A–Z)',
                 yourIdCopied: 'Your ID has been copied to the clipboard successfully! ',
                 taptocopy: '(Tap to copy your ID)',
                 // ... существующие переводы на английский ...
@@ -541,6 +559,8 @@
 
             },
             ru: {
+                labelText: 'Кириллица (А–Я)',
+                labelText2: 'Латиница (A–Z)',
                 yourIdCopied: 'Ваш ID скопирован в буфер обмена',
                 taptocopy: '(Нажмите, чтобы скопировать)',
                 id: 'Ваш ID:',
@@ -690,6 +710,8 @@
 
             },
             uz: {
+                labelText: 'Kiril (А–Я)',
+                labelText2: 'Lotin (A–Z)',
                 yourIdCopied: 'Sizning ID nusxalandi',
                 taptocopy: '(ID-ni nusxalash uchun bosing)',
                 id: 'Sizning ID-ingiz:',
@@ -838,6 +860,8 @@
 
             },
             kk: {
+                labelText: 'Кириллица (А–Я)',
+                labelText2: 'Латын (A–Z)',
                 yourIdCopied: 'Сіздің ID буферге көшірілді',
                 taptocopy: '(Көшіру үшін басыңыз)',
                 id: 'Сіздің ID:',
@@ -988,6 +1012,8 @@
 
             },
             be: {
+                labelText: 'Кірыліца (А–Я)',
+                labelText2: 'Латын (A–Z)',
                 yourIdCopied: 'Ваш ID скапіраваны',
                 taptocopy: '(Націсніце, каб скапіраваць ID)',
                 id: 'Ваш ID:',
@@ -1139,6 +1165,8 @@
 
             },
             az: {
+                labelText: 'Kiril (А–Я)',
+                labelText2: 'Latın (A–Z)',
                 yourIdCopied: 'Sizin ID kopyalandı',
                 taptocopy: '(ID-nizi kopyalamaq üçün basın)',
                 id: 'Sizin ID:',
@@ -1289,6 +1317,8 @@
 
             },
             uk: {
+                labelText: 'Кирилиця (А–Я)',
+                labelText2: 'Латиниця (A–Z)',
                 yourIdCopied: 'Ваш ID скопійовано',
                 taptocopy: '(Натисніть, щоб скопіювати ID)',
                 id: 'Ваш ID:',
@@ -1439,6 +1469,8 @@
 
             },
             tr: {
+                labelText: 'Kiril (A–Я)',
+                labelText2: 'Latin (A–Z)',
                 yourIdCopied: 'ID’niz kopyalandı',
                 taptocopy: '(ID’nizi kopyalamak için dokunun)',
                 id: 'Sizin ID:',
@@ -1589,6 +1621,8 @@
 
             },
             ky: {
+                labelText: 'Кириллица (А–Я)',
+                labelText2: 'Латиница (A–Z)',
                 yourIdCopied: 'ID-иңиз куюлду',
                 taptocopy: '(ID-иңизди куюу үчүн басыңыз)',
                 id: 'Сиздин ID:',
@@ -2325,6 +2359,7 @@ If you have any questions, contact @Clickerstart_bot.
             }
             userData.theme = document.getElementById('themeSelect').value;
             userData.language = document.getElementById('languageSelect').value;
+            updateLanguage(userData.language); // пример вызова
             saveData();
             applyTheme();
             translatePage();
@@ -2494,6 +2529,48 @@ If you have any questions, contact @Clickerstart_bot.
                 }
             }
         }
+        function updateLanguage(lang) {
+            if (lang === 'en') {
+                document.getElementById('latin').label = translations[userData.language].labelText || 'Latin (A–Z)';
+                document.getElementById('kiril').label = translations[userData.language].labelText2 || 'Cyrillic (А–Я)';
+            }
+            else if (lang === 'ru') {
+                document.getElementById('latin').label = translations[userData.language].labelText || 'Latin (A–Z)';
+                document.getElementById('kiril').label = translations[userData.language].labelText2 || 'Cyrillic (А–Я)';
+            }
+            else if (lang === 'az') {
+                document.getElementById('latin').label = translations[userData.language].labelText || 'Latin (A–Z)';
+                document.getElementById('kiril').label = translations[userData.language].labelText2 || 'Cyrillic (А–Я)';
+            }
+            else if (lang === 'uz') {
+                document.getElementById('latin').label = translations[userData.language].labelText || 'Latin (A–Z)';
+                document.getElementById('kiril').label = translations[userData.language].labelText2 || 'Cyrillic (А–Я)';
+            }
+            else if (lang === 'tr') {
+                document.getElementById('latin').label = translations[userData.language].labelText || 'Latin (A–Z)';
+                document.getElementById('kiril').label = translations[userData.language].labelText2 || 'Cyrillic (А–Я)';
+            }
+            else if (lang === 'be') {
+                document.getElementById('latin').label = translations[userData.language].labelText || 'Latin (A–Z)';
+                document.getElementById('kiril').label = translations[userData.language].labelText2 || 'Cyrillic (А–Я)';
+            }
+            else if (lang === 'ky') {
+                document.getElementById('latin').label = translations[userData.language].labelText || 'Latin (A–Z)';
+                document.getElementById('kiril').label = translations[userData.language].labelText2 || 'Cyrillic (А–Я)';
+            }
+            else if (lang === 'kk') {
+                document.getElementById('latin').label = translations[userData.language].labelText || 'Latin (A–Z)';
+                document.getElementById('kiril').label = translations[userData.language].labelText2 || 'Cyrillic (А–Я)';
+            }
+            else if (lang === 'uk') {
+                document.getElementById('latin').label = translations[userData.language].labelText || 'Latin (A–Z)';
+                document.getElementById('kiril').label = translations[userData.language].labelText2 || 'Cyrillic (А–Я)';
+            }
+            else {
+                console.log('Язык не определен');
+            }
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             const tg = window.Telegram.WebApp;
             tg.expand(); // Обязательно!
@@ -2543,6 +2620,7 @@ If you have any questions, contact @Clickerstart_bot.
 
         // Автоматическое реагирование на смену темы
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', checkSameOnTheDeviceTheme);
+        updateLanguage(userData.language); // пример вызова
 
         </script>
 </body>
