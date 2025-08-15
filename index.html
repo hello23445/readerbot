@@ -244,13 +244,14 @@
         <div id="settingsScreen" class="screen hidden">
             <h2 class="text-2xl font-bold mb-4 text-center" data-translate="settings">Settings</h2>
             <div id="idShower" style="display: none;">
-                <h3>Your ID:</h3><button id="setID" style="background-color: black; border-radius: 8%; color: white;" title="Tap to copy your ID"></button>
+                <h3 style="font-weight: bold;" data-translate="id">Your ID:</h3><button id="setID" style="background-color: black; border-radius: 8%; color: white; margin-bottom: 3%;" title="Tap to copy your ID"></button>
             </div>
             <div class="mb-4">
                 <label class="block mb-2" data-translate="theme" style="font-weight: bold;">Theme:</label>
                 <select id="themeSelect" class="w-full p-2 border rounded">
                     <option value="light" data-translate="light">Light</option>
                     <option value="dark" data-translate="dark">Dark</option>
+                    <option value="device" data-translate="device">Device</option>
                     <option value="Auto" data-translate="auto">Auto</option>
                 </select>
             </div>
@@ -391,7 +392,11 @@
 
         const translations = {
             en: {
+                yourIdCopied: 'Your ID has been copied to the clipboard successfully! ',
+                taptocopy: '(Tap to copy your ID)',
                 // ... существующие переводы на английский ...
+                id: 'Your ID:',
+                device: 'Same as on device',
                 language: 'Language',
                 english: 'English',
                 russian: 'Русский (Russian)',
@@ -536,10 +541,14 @@
 
             },
             ru: {
+                yourIdCopied: 'Ваш ID скопирован в буфер обмена',
+                taptocopy: '(Нажмите, чтобы скопировать)',
+                id: 'Ваш ID:',
+                device: 'Как на устройстве',
                 // ... существующие переводы на русский ...
                 language: 'Язык',
                 english: 'English (Английский)',
-                russian: 'Русский (Русский)',
+                russian: 'Русский (Russian)',
                 uzbek: 'Oʻzbekcha (Узбекский)',
                 kazakh: 'Қазақша (Казахский)',
                 ukrainian: 'Українська (Украинский)',
@@ -681,17 +690,21 @@
 
             },
             uz: {
+                yourIdCopied: 'Sizning ID nusxalandi',
+                taptocopy: '(ID-ni nusxalash uchun bosing)',
+                id: 'Sizning ID-ingiz:',
+                device: 'Qurilmadagi kabi',
                 auto: 'Avto',
                 language: 'Til',
-                english: 'English (Англияча)',
-                russian: 'Русский (Русча)',
-                uzbek: 'Oʻzbekcha (Ўзбекча)',
-                kazakh: 'Қазақша (Қозоқча)',
-                ukrainian: 'Українська (Украинча)',
-                belarusian: 'Беларуская (Белорусча)',
-                azerbaijani: 'Azərbaycanca (Озарбайжонча)',
-                turkish: 'Türkçe (Туркча)',
-                kyrgyz: 'Кыргызча (Қирғизча)',
+                english: 'English (Ingilischa)',
+                russian: 'Русский (Ruscha)',
+                uzbek: "Oʻzbekcha (O'zbekcha)",
+                kazakh: 'Қазақша (Qozoqcha)',
+                ukrainian: 'Українська (Ukraincha)',
+                belarusian: 'Беларуская (Belaruscha)',
+                azerbaijani: 'Azərbaycanca (Ozarbayjoncha)',
+                turkish: 'Türkçe (Turkcha)',
+                kyrgyz: 'Кыргызча (Qirg\'izcha)',
                 enterTelegramId: 'Telegram ID-ni kiriting',
                 submit: 'Yuborish',
                 resend: 'Qayta yuborish',
@@ -825,6 +838,10 @@
 
             },
             kk: {
+                yourIdCopied: 'Сіздің ID буферге көшірілді',
+                taptocopy: '(Көшіру үшін басыңыз)',
+                id: 'Сіздің ID:',
+                device: 'Құрылғыдағыдай',
                 auto: 'Авто',
                 language: 'Тіл',
                 kyrgyz: 'Қиргизча (Қырғызша)',
@@ -971,6 +988,10 @@
 
             },
             be: {
+                yourIdCopied: 'Ваш ID скапіраваны',
+                taptocopy: '(Націсніце, каб скапіраваць ID)',
+                id: 'Ваш ID:',
+                device: 'Як на прыладзе',
                 kyrgyz: 'Кыргызча (Кіргізскі)',
                 auto: 'Аўта',
                 language: 'Мова',
@@ -1118,6 +1139,10 @@
 
             },
             az: {
+                yourIdCopied: 'Sizin ID kopyalandı',
+                taptocopy: '(ID-nizi kopyalamaq üçün basın)',
+                id: 'Sizin ID:',
+                device: 'Cihazdakı kimi',
                 kyrgyz: 'Кыргызча (Kirgiz dili)',
                 auto: 'Avto',
                 language: 'Dil',
@@ -1264,6 +1289,10 @@
 
             },
             uk: {
+                yourIdCopied: 'Ваш ID скопійовано',
+                taptocopy: '(Натисніть, щоб скопіювати ID)',
+                id: 'Ваш ID:',
+                device: 'Як на пристрої',
                 auto: 'Авто',
                 language: 'Мова',
                 kyrgyz: 'Кыргызча (Киргизька)',
@@ -1410,6 +1439,10 @@
 
             },
             tr: {
+                yourIdCopied: 'ID’niz kopyalandı',
+                taptocopy: '(ID’nizi kopyalamak için dokunun)',
+                id: 'Sizin ID:',
+                device: 'Cihazdaki gibi',
                 language: 'Dil',
                 kyrgyz: 'Кыргызча (Kırgızca)',
                 english: 'English (İngilizce)',
@@ -1556,6 +1589,10 @@
 
             },
             ky: {
+                yourIdCopied: 'ID-иңиз куюлду',
+                taptocopy: '(ID-иңизди куюу үчүн басыңыз)',
+                id: 'Сиздин ID:',
+                device: 'Cөздүккө ылайыкташтыруу',
                 auto: 'Авто',
                 language: 'Тил',
                 english: 'English (Англисче)',
@@ -2274,7 +2311,7 @@ If you have any questions, contact @Clickerstart_bot.
             const result_id = telegramId.slice(0, -6) + hiddenPart + telegramId.slice(-2);
 
 
-            document.getElementById('setID').textContent = result_id + ' (Tap to copy)';
+            document.getElementById('setID').textContent = result_id + translations[userData.language].taptocopy;
             previousScreen = fromScreen;
             showScreen('settingsScreen');
             document.getElementById('themeSelect').value = userData.theme;
@@ -2299,6 +2336,27 @@ If you have any questions, contact @Clickerstart_bot.
                 checkTimeToAutoTheme();
                 return;
             }
+            if (userData.theme === 'device' || document.getElementById('themeSelect').value === 'device') {
+                const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+                if (prefersDarkScheme.matches) {
+                    document.body.classList.add('dark');
+                    document.querySelector('#a3').style.color = 'white';
+                } else {
+                    document.body.classList.remove('dark');
+                    document.querySelector('#a3').style.color = 'red';
+                }
+                // Listen for changes in device theme and update automatically
+                prefersDarkScheme.addEventListener('change', (e) => {
+                    if (e.matches) {
+                        document.body.classList.add('dark');
+                        document.querySelector('#a3').style.color = 'white';
+                    } else {
+                        document.body.classList.remove('dark');
+                        document.querySelector('#a3').style.color = 'red';
+                    }
+                });
+                return;
+            }
             if (userData.theme === 'dark') {
                 document.body.classList.add('dark');
                 document.querySelector('#a3').style.color = 'white';
@@ -2306,6 +2364,7 @@ If you have any questions, contact @Clickerstart_bot.
                 document.body.classList.remove('dark');
                 document.querySelector('#a3').style.color = 'red';
             }
+
         }
 
         function translatePage() {
@@ -2398,7 +2457,7 @@ If you have any questions, contact @Clickerstart_bot.
             }
             const text = userData.telegramId;
             navigator.clipboard.writeText(text).then(() => {
-                alert("Your Telegram ID has been copied to clipboard: " + text + "\n\n" + "Ваш Telegram ID скопирован в буфер обмена: " + text);
+                alert(translations[userData.language].yourIdCopied + ': ' + text);
             }).catch(err => {
                 alert("Ошибка копирования: ", err + '\nВыделите ID и скопируйте его вручную.');
                 document.getElementById('setID').innerText = `${userData.telegramId}`;
@@ -2408,10 +2467,23 @@ If you have any questions, contact @Clickerstart_bot.
                     const result_id = telegramId.slice(0, -6) + hiddenPart + telegramId.slice(-2);
 
 
-                    document.getElementById('setID').textContent = result_id + ' (Tap to copy)';
+                    document.getElementById('setID').textContent = result_id + translations[userData.language].taptocopy;
                 }, 4000);
             });
         });
+        function checkSameOnTheDeviceTheme(){
+            if (userData.theme === 'device' || document.getElementById('themeSelect').value === 'device') {
+                const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+                if (isDark) {
+                    document.body.classList.add('dark');
+                    document.querySelector('#a3').style.color = 'white';
+                } else {
+                    document.body.classList.remove('dark');
+                    document.querySelector('#a3').style.color = 'red';
+                }
+            }
+        }
         window.addEventListener('DOMContentLoaded', () => {
             const tg = window.Telegram.WebApp;
             tg.expand(); // Обязательно!
@@ -2444,6 +2516,7 @@ If you have any questions, contact @Clickerstart_bot.
                 document.getElementById('setID').innerText = `Ваш Telegram ID: ${userId}`;
                 document.getElementById('idShower').style.display = 'block';
                 userData.telegramId = String(userId) || userId;
+                document.getElementById('telegramId').value = userData.telegramId;
                 checkSubscriptions()
             } else {
                 alert('Не удалось найти ID');
@@ -2454,6 +2527,13 @@ If you have any questions, contact @Clickerstart_bot.
         }
         initialize();
         checkTimeToAutoTheme();
+
+        // Проверяем при загрузке
+        checkSameOnTheDeviceTheme();
+
+        // Автоматическое реагирование на смену темы
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', checkSameOnTheDeviceTheme);
+
         </script>
 </body>
 </html>
